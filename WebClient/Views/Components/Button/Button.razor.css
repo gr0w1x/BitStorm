@@ -1,0 +1,35 @@
+button {
+    background: transparent;
+    outline: none;
+    border: 2px solid;
+    border-color: var(--control);
+    border-radius: 5px;
+    color: var(--text);
+    font-size: var(--text-size);
+    font-family: var(--text-font);
+    font-weight: bolder;
+    letter-spacing: 3px;
+    padding: 5px 15px;
+    transition: 0.25s ease-in-out;
+    transition-property: color border-color opacity;
+    cursor: pointer;
+}
+
+button:hover,
+button:focus {
+    border-color: var(--text);
+}
+
+button[disabled] {
+    opacity: 0.5;
+}
+
+button.filled {
+    background-color: var(--control);
+    color: black;
+    mix-blend-mode: screen;
+}
+button.filled:hover,
+button.filled:focus {
+    background-color: var(--text);
+}

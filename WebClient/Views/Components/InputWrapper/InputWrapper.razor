@@ -1,0 +1,17 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using WebClient.Views.Components.InputWrapper
+@typeparam T
+
+<label class="field">
+    @if(Title != null)
+    {
+        <span class="caption">@Title</span>
+    }
+    @ChildContent
+    @if(WithValidation)
+    {
+        <span class="caption error">
+            <ValidationMessage class="caption right-align error" For="@For" />
+        </span>
+    }
+</label>

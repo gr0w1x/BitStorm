@@ -1,0 +1,81 @@
+@page "/sign-up"
+@layout Layouts.SignLayout.SignLayout
+@using Types.Dtos
+@using WebClient.Store.Pages.SignUpPage
+@using WebClient.Views.Components
+@using WebClient.Views.Components.OneLineInput
+@using WebClient.Views.Components.InputWrapper
+@using WebClient.Views.Components.Button
+@using WebClient.Views.Components.CircleSpinner
+@using WebClient.Views.Pages.SignTemplate
+@using WebClient.Typing
+@inherits SignTemplateBase<SignUpPageState, SignUpDto>
+
+@code {
+    private void NavigateToSignIn()
+    {
+        Navigation.NavigateTo("/sign-in", true);
+    }
+}
+
+<SignTemplate Context="@_context" OnSubmit="@OnSubmit">
+    @if ((ComponentState.Value.UxState & UxState.Success) == UxState.None)
+    {
+        <h1 class="title">Sign Up</h1>
+        <a class="caption right-align" @onclick="NavigateToSignIn">or sign in</a>
+        <hr>
+        <InputWrapper
+            Title="email *"
+            For="@(() => _dto.Email)">
+            <OneLineInput
+                id="email"
+                type="email"
+                placeholder="Type email ..."
+                disabled="@(!CanEdit)"
+                @bind-Value="_dto.Email" />
+        </InputWrapper>
+        <InputWrapper
+            Title="username *"
+            For="@(() => _dto.Username)">
+            <OneLineInput
+                id="username"
+                placeholder="Type username ..."
+                disabled="@(!CanEdit)"
+                @bind-Value="_dto.Username" />
+        </InputWrapper>
+        <InputWrapper
+            Title="password *"
+            For="@(() => _dto.Password)">
+            <OneLineInput
+                id="password"
+                placeholder="Type password ..."
+                disabled="@(!CanEdit)"
+                @bind-Value="_dto.Password" />
+        </InputWrapper>
+        <hr>
+        @if (ComponentState.Value.ServerError != null)
+        {
+            <span class="caption error right-align">@ComponentState.Value.ServerError</span>
+        }
+        <Button
+            disabled="@(!CanSubmit)"
+            class="filled"
+            type="submit">
+            <div class="submit">
+                @if((ComponentState.Value.UxState & UxState.Loading) != UxState.None)
+                {
+                    <CircleSpinner Color="var(--background)" Count="8" Size="24px" />
+                }
+                SIGN UP
+            </div>
+        </Button>
+    }
+    else
+    {
+        <div>
+            <i class="fa-solid fa-5x fa-check-circle"></i>
+            <h1>Done!</h1>
+            <span>Please go to your email and confirm your account</span>
+        </div>
+    }
+</SignTemplate>

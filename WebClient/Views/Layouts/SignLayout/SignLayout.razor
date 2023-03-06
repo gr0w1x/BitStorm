@@ -1,0 +1,19 @@
+@inherits LayoutComponentBase
+@using WebClient.Views.Components.TerminalLabel
+
+<div class="layout">
+    <div class="background">
+        <div class="icon">
+            <img class="no-select" src="assets/icons/bitstorm.svg" width="100" height="100" alt="bitstorm"/>
+        </div>
+        <div class="terminal-label no-select">
+            <TerminalLabel
+                Title="BitStorm"
+                TypingInterval=@TimeSpan.FromMilliseconds(100)
+                CursorBlinkInterval=@TimeSpan.FromMilliseconds(500) />
+        </div>
+    </div>
+    <div class="main">
+        @Body
+    </div>
+</div>

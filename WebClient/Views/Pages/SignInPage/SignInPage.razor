@@ -1,0 +1,60 @@
+@page "/sign-in"
+@layout Layouts.SignLayout.SignLayout
+@using Types.Dtos
+@using WebClient.Store.Pages.SignInPage
+@using WebClient.Views.Components
+@using WebClient.Views.Components.OneLineInput
+@using WebClient.Views.Components.InputWrapper
+@using WebClient.Views.Components.Button
+@using WebClient.Views.Components.CircleSpinner
+@using WebClient.Views.Pages.SignTemplate
+@using WebClient.Typing
+@inherits SignTemplateBase<SignInPageState, SignInDto>
+
+@code {
+    private void NavigateToSignUp()
+    {
+        Navigation.NavigateTo("/sign-up", true);
+    }
+}
+
+<SignTemplate Context="@_context" OnSubmit="@OnSubmit">
+    <h1 class="title">Sign In</h1>
+    <a class="caption right-align" @onclick="NavigateToSignUp">or sign up</a>
+    <hr>
+    <InputWrapper
+        Title="email or username *"
+        For="@(() => _dto.EmailOrUsername)">
+        <OneLineInput
+            id="email-or-username"
+            placeholder="Type email/username ..."
+            disabled="@(!CanEdit)"
+            @bind-Value="_dto.EmailOrUsername" />
+    </InputWrapper>
+    <InputWrapper
+        Title="password *"
+        For="@(() => _dto.Password)">
+        <OneLineInput
+            id="password"
+            placeholder="Type password ..."
+            disabled="@(!CanEdit)"
+            @bind-Value="_dto.Password" />
+    </InputWrapper>
+    <hr>
+    @if (ComponentState.Value.ServerError != null)
+    {
+        <span class="caption error right-align">@ComponentState.Value.ServerError</span>
+    }
+    <Button
+        disabled="@(!CanSubmit)"
+        class="filled"
+        type="submit">
+        <div class="submit">
+            @if((ComponentState.Value.UxState & UxState.Loading) != UxState.None)
+            {
+                <CircleSpinner Color="var(--background)" Count="8" Size="24px" />
+            }
+            SIGN IN
+        </div>
+    </Button>
+</SignTemplate>

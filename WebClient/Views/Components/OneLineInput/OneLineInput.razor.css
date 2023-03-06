@@ -1,0 +1,35 @@
+input {
+    background: transparent;
+    outline: none;
+    border: 2px solid;
+    border-color: var(--control);
+    border-radius: 5px;
+    color: var(--text);
+    font-size: var(--text-size);
+    font-family: var(--text-font);
+    padding: 5px 15px;
+    transition: 0.25s ease-in-out;
+    transition-property: color border-color opacity;
+}
+::placeholder {
+    color: var(--control);
+    opacity: 0.5;
+}
+
+input:hover,
+input:focus {
+    border-color: var(--text);
+}
+
+input[disabled] {
+    opacity: 0.75;
+}
+
+input.modified.valid:focus {
+    --text: var(--success-text);
+    --control: var(--success-control);
+}
+.invalid {
+    --text: var(--error-text);
+    --control: var(--error-control);
+}

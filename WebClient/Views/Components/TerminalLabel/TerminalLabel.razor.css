@@ -1,0 +1,17 @@
+.slash, .cursor {
+    font-weight: bold;
+}
+.cursor {
+    animation-name: cursor-blinking;
+    animation-iteration-count: infinite;
+    animation-duration: var(--blink-interval);
+}
+
+@keyframes cursor-blinking {
+    from, 49% {
+        opacity: 0;
+    }
+    50%, to {
+        opacity: 1;
+    }
+}
