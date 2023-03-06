@@ -1,13 +1,18 @@
 bin/
 obj/
 /packages/
-riderModule.iml
-/_ReSharper.Caches/
 
+# env configuration
 .env
 
 # docker-conf
 .docker-conf/rabbitmq/data/*
 .docker-conf/users-db/*
 .docker-conf/tasks-db/*
+
+# editor
 .idea
+riderModule.iml
+/_ReSharper.Caches/
+.vscode
+*.DotSettings.user
