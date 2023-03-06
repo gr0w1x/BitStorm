@@ -1,0 +1,31 @@
+{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/{path}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "users",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/users/{path}",
+      "UpstreamHttpMethod": [ "GET", "OPTIONS", "POST", "PUT" ]
+    },
+    {
+      "DownstreamPathTemplate": "/{path}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "tasks",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/tasks/{path}",
+      "UpstreamHttpMethod": [ "GET", "OPTIONS", "POST", "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
+    }
+  ]
+}
