@@ -1,0 +1,157 @@
+version: "3.8"       
+
+services:  
+  adminer:
+    image: adminer
+    depends_on:
+      - users-db
+    ports:
+      - '${ADMINER_PORT}:${ADMINER_PORT}'
+    networks:
+      - adminer-network
+  rabbitmq:
+    hostname: rabbitmq
+    image: rabbitmq:3.9-management-alpine
+    ports:
+      - '${RABBITMQ_PORT}:${RABBITMQ_PORT}'
+      - '${RABBITMQ_ADMIN_PORT}:${RABBITMQ_ADMIN_PORT}'
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+    networks:
+      - rabbitmq-network
+    env_file:
+      - .env
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+  users-db:
+    image: mysql:8.0
+    cap_add:
+      - SYS_NICE
+    ports:
+      - '${USERS_DB_PORT}:${USERS_DB_PORT}'
+    env_file:
+      - .env
+      - Server/Microservices/Users/.env
+    networks:
+      - users-db-network
+      - adminer-network
+    volumes:
+      - ./.docker-conf/users-db/init.sql:/docker-entrypoint-initdb.d/mysql-init.sql
+      - ./.docker-conf/users-db/.cnf:/etc/mysql/conf.d/mysql.cnf
+  tasks-db:
+    image: mysql:8.0
+    cap_add:
+      - SYS_NICE
+    ports:
+      - '${TASKS_DB_PORT}:${TASKS_DB_PORT}'
+    env_file:
+      - .env
+      - Server/Microservices/Tasks/.env
+    networks:
+      - users-db-network
+      - adminer-network
+    volumes:
+      - ./.docker-conf/tasks-db/init.sql:/docker-entrypoint-initdb.d/mysql-init.sql
+      - ./.docker-conf/tasks-db/.cnf:/etc/mysql/conf.d/mysql.cnf
+  gateway:
+    build:
+      context: .
+      dockerfile: Server/Gateway/Dockerfile
+    depends_on:
+      users-db:
+        condition: service_started
+    ports:
+      - '${GATEWAY_PORT}:80'
+    environment:
+      MYSQL_HOST: users-db
+    env_file:
+      - .env
+      - Server/Gateway/.env
+    networks:
+      - gateway-network
+      - users-db-network
+      - web-client-network
+  users:
+    build:
+      context: .
+      dockerfile: Server/Microservices/Users/Dockerfile
+    depends_on:
+      users-db:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - '${USERS_PORT}:80'
+    environment:
+      MYSQL_HOST: users-db
+      RABBITMQ_HOST: rabbitmq
+    env_file:
+      - .env
+      - Server/Microservices/Users/.env
+    networks:
+      - users-db-network
+      - rabbitmq-network
+      - gateway-network
+  tasks:
+    build:
+      context: .
+      dockerfile: Server/Microservices/Tasks/Dockerfile
+    depends_on:
+      tasks-db:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - '${TASKS_PORT}:80'
+    environment:
+      MYSQL_HOST: tasks-db
+    env_file:
+      - .env
+      - Server/Microservices/Tasks/.env
+    networks:
+      - tasks-db-network
+      - gateway-network  
+  mailer:
+    build:
+      context: .
+      dockerfile: Server/Microservices/Mailer/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - rabbitmq-network
+    env_file:
+      - .env
+      - Server/Microservices/Mailer/.env
+    environment:
+      RABBITMQ_HOST: rabbitmq
+#  web-client:
+#    build:
+#      context: .
+#      dockerfile: WebClient/Dockerfile
+#    ports:
+#      - '${WEB_CLIENT_PORT}:5069'
+#    env_file:
+#      - .env
+#    networks:
+#      - web-client-network
+
+networks:
+  adminer-network:
+    driver: bridge
+  rabbitmq-network:
+    driver: bridge
+  users-db-network:
+    driver: bridge
+  tasks-db-network:
+    driver: bridge
+  gateway-network:
+    driver: bridge
+  web-client-network:
+    driver: bridge
