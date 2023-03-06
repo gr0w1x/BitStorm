@@ -1,0 +1,13 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+
+.env
+
+# docker-conf
+.docker-conf/rabbitmq/data/*
+.docker-conf/users-db/*
+.docker-conf/tasks-db/*
+.idea
