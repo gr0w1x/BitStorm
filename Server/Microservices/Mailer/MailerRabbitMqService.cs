@@ -57,8 +57,6 @@ public class MailerRabbitMqService: RabbitMqService
 
     protected override void OnModeling(IModel model)
     {
-        _logger.LogInformation("here");
-
         model.MailerRequestQueueDeclare(_configuration["MAILER_REQUEST_QUEUE"]!);
 
         var consumer = new AsyncEventingBasicConsumer(model);
