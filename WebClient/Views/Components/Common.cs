@@ -88,6 +88,23 @@ public class PageComponent<TState>: Component<TState>
             }
         }
     }
+
+    protected void NavigateRedirect()
+    {
+        Navigation.NavigateTo(Redirect);
+    }
+
+    protected void NavigateBackOrRedirect()
+    {
+        if (Navigation.CanNavigateBack)
+        {
+            Navigation.NavigateBack();
+        }
+        else
+        {
+            NavigateRedirect();
+        }
+    }
 }
 
 public class FormComponent<TState, TDto>: PageComponent<TState>
