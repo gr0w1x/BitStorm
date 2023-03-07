@@ -14,12 +14,13 @@ public abstract class SignTemplateBase<TState, TDto>: FormComponent<TState, TDto
 
     protected override PageAccessType PageAccess => PageAccessType.OnlyPublic;
 
+    protected virtual UxState InitState => UxState.Editable;
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
         Dispatcher.Dispatch(new SetUxState<TState>(
-            ComponentState.Value.UxState
-            | UxState.Editable
+            InitState
         ));
     }
 

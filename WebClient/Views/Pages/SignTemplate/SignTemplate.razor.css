@@ -1,25 +1,10 @@
-.layout {
-    display: grid;
-    align-items: stretch;
-    justify-items: stretch;
-    height: 100%;
-}
-
-.main {
-    display: grid;
-    align-content: center;
-    align-items: center;
-    justify-items: center;
-    justify-items: center;
-    padding: 0 10%;
-}
-
-.main .form {
+.form {
     display: flex;
     gap: 15px;
     flex-direction: column;
     flex-wrap: nowrap;
     justify-content: center;
+    align-content: normal;
     align-items: stretch;
 }
 
@@ -27,12 +12,18 @@
     text-align: center;
 }
 
-::deep .main form hr {
+::deep hr {
     width: 80%;
     border: none;
     border-top: var(--control) solid 2px;
 }
 
-.main button {
-    --surface: var(--background);
+::deep .submit {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+::deep input {
+    width: 100%;
 }

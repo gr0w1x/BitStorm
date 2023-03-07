@@ -1,7 +1,6 @@
 @layout Layouts.SignLayout.SignLayout
 @using Microsoft.AspNetCore.Components.Forms
 @using WebClient.Views.Components
-@using WebClient.Typing
 
 @code {
     [Parameter]
@@ -14,13 +13,9 @@
     public EventCallback<EditContext> OnSubmit { get; set; }
 }
 
-<div class="layout">
-    <div class="main">
-        <EditForm EditContext="@Context" OnValidSubmit="@OnSubmit">
-            <DataAnnotationsValidator />
-            <div class="form">
-                @ChildContent
-            </div>
-        </EditForm>
+<EditForm EditContext="@Context" OnValidSubmit="@OnSubmit">
+    <DataAnnotationsValidator />
+    <div class="form">
+        @ChildContent
     </div>
-</div>
+</EditForm>
