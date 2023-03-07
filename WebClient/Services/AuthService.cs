@@ -28,4 +28,12 @@ public class AuthService
             Method = HttpMethod.Post,
             Content = new StringContent(JsonSerializer.Serialize(dto), Encoding.UTF8, "application/json")
         });
+
+    public Task<HttpResponseMessage> Confirm(ConfirmDto dto) =>
+        _client.SendAsync(new ApiMessage()
+        {
+            RequestUri = new Uri("/api/users/auth/confirm", UriKind.RelativeOrAbsolute),
+            Method = HttpMethod.Post,
+            Content = new StringContent(JsonSerializer.Serialize(dto), Encoding.UTF8, "application/json")
+        });
 }
