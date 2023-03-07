@@ -8,7 +8,6 @@
 @using WebClient.Views.Components.Button
 @using WebClient.Views.Components.CircleSpinner
 @using WebClient.Views.Pages.SignTemplate
-@using WebClient.Typing
 @inherits SignTemplateBase<SignInPageState, SignInDto>
 
 @code {
@@ -20,7 +19,11 @@
 
 <SignTemplate Context="@_context" OnSubmit="@OnSubmit">
     <h1 class="title">Sign In</h1>
-    <a class="caption right-align" @onclick="NavigateToSignUp">or sign up</a>
+    <span class="caption right-align">
+        <a @onclick="NavigateRedirect">main page</a>
+        or
+        <a @onclick="NavigateToSignUp">sign up</a>
+    </span>
     <hr>
     <InputWrapper
         Title="email or username *"
@@ -41,7 +44,7 @@
             @bind-Value="_dto.Password" />
     </InputWrapper>
     <hr>
-    @if (ComponentState.Value.ServerError != null)
+    @if (ComponentState.Value.UxState.Is(UxState.Error))
     {
         <span class="caption error right-align">@ComponentState.Value.ServerError</span>
     }
