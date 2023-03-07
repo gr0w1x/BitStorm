@@ -1,0 +1,27 @@
+@code {
+    [Parameter]
+    public string? Icon { get; set; }
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}
+
+<div class="result">
+    @if (Icon != null)
+    {
+        <i class="@Icon" data-icon />
+    }
+    @if (Title != null)
+    {
+        <h1>@Title</h1>
+    }
+    @if (ChildContent != null)
+    {
+        <div class="content">
+            @ChildContent
+        </div>
+    }
+</div>

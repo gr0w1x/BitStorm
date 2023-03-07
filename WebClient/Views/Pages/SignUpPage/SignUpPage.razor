@@ -7,8 +7,8 @@
 @using WebClient.Views.Components.InputWrapper
 @using WebClient.Views.Components.Button
 @using WebClient.Views.Components.CircleSpinner
+@using WebClient.Views.Components.ResultStatus
 @using WebClient.Views.Pages.SignTemplate
-@using WebClient.Typing
 @inherits SignTemplateBase<SignUpPageState, SignUpDto>
 
 @code {
@@ -18,11 +18,15 @@
     }
 }
 
-<SignTemplate Context="@_context" OnSubmit="@OnSubmit">
-    @if ((ComponentState.Value.UxState & UxState.Success) == UxState.None)
-    {
+@if(!ComponentState.Value.UxState.Is(UxState.Success))
+{
+    <SignTemplate Context="@_context" OnSubmit="@OnSubmit">
         <h1 class="title">Sign Up</h1>
-        <a class="caption right-align" @onclick="NavigateToSignIn">or sign in</a>
+        <span class="caption right-align">
+            <a @onclick="NavigateRedirect">main page</a>
+            or
+            <a @onclick="NavigateToSignIn">sign in</a>
+        </span>
         <hr>
         <InputWrapper
             Title="email *"
@@ -53,7 +57,7 @@
                 @bind-Value="_dto.Password" />
         </InputWrapper>
         <hr>
-        @if (ComponentState.Value.ServerError != null)
+        @if (ComponentState.Value.UxState.Is(UxState.Error))
         {
             <span class="caption error right-align">@ComponentState.Value.ServerError</span>
         }
@@ -69,13 +73,12 @@
                 SIGN UP
             </div>
         </Button>
-    }
-    else
-    {
-        <div>
-            <i class="fa-solid fa-5x fa-check-circle"></i>
-            <h1>Done!</h1>
-            <span>Please go to your email and confirm your account</span>
-        </div>
-    }
-</SignTemplate>
+    </SignTemplate>
+}
+else
+{
+    <ResultStatus Icon="fa-solid fa-5x fa-check-circle" Title="Done!">
+        Please go to your email and confirm your account <br>
+        <a class="caption right-align" @onclick="NavigateRedirect">main page</a>
+    </ResultStatus>
+}

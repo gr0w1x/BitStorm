@@ -6,7 +6,6 @@ namespace Users.Models;
 
 public record ConfirmEmail(User User, string Link);
 
-public record ConfirmDto(Guid code);
 public record ConfirmRecord(string Email, DateTimeOffset Expired)
 {
     [Key]
