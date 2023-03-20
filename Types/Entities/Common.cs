@@ -8,9 +8,10 @@ public interface IHasId : IHasId<Guid> {}
 
 public interface ICreated
 {
-    DateTime Created { get; }
+    DateTimeOffset CreatedAt { get; set; }
 }
+
 public interface IUpdated
 {
-    DateTime Updated { get; }
+    DateTimeOffset? UpdatedAt { get; set; }
 }
