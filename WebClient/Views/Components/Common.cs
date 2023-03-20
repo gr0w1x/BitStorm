@@ -2,30 +2,19 @@ using Fluxor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using WebClient.Services;
+using WebClient.Store.Common;
 using WebClient.Store.User;
 using WebClient.Typing;
 
 namespace WebClient.Views.Components;
 
-public interface IHasUxState
-{
-    UxState UxState { get; }
-}
-
-public class Component<TState>: ComponentBase, IDisposable
-    where TState: IHasUxState
+public class ReduxComponent<TState>: ComponentBase, IDisposable
 {
     [Inject]
     protected IDispatcher Dispatcher { get; set; }
 
     [Inject]
     protected IState<TState> ComponentState { get; set; }
-
-    [Inject]
-    protected ILogger<Component<TState>> Logger { get; set; }
-
-    [Inject]
-    protected Navigation Navigation { get; set; }
 
     protected override void OnInitialized()
     {
@@ -42,6 +31,31 @@ public class Component<TState>: ComponentBase, IDisposable
         => StateHasChanged();
 }
 
+public class UxStateComponent<TState>: ReduxComponent<TState>
+    where TState: IHasUxState
+{
+    [Inject]
+    protected ILogger<UxStateComponent<TState>> Logger { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (ComponentState.Value.UxState != ComponentState.Value.InitialState)
+        {
+            Dispatcher.Dispatch(new SetUxState<TState>(ComponentState.Value.InitialState));
+        }
+    }
+
+    public virtual void Dispose()
+    {
+        base.Dispose();
+        if (ComponentState.Value.UxState != ComponentState.Value.InitialState)
+        {
+            Dispatcher.Dispatch(new SetUxState<TState>(ComponentState.Value.InitialState));
+        }
+    }
+}
+
 [Flags]
 public enum PageAccessType
 {
@@ -50,11 +64,14 @@ public enum PageAccessType
     OnlyPrivate      = 1 << 1
 }
 
-public class PageComponent<TState>: Component<TState>
+public class PageComponent<TState>: UxStateComponent<TState>
     where TState: IHasUxState
 {
     [Inject]
     protected IState<UserState> UserState { get; set; }
+
+    [Inject]
+    protected Navigation Navigation { get; set; }
 
     protected virtual PageAccessType PageAccess => PageAccessType.OnlyPrivate;
 
@@ -70,7 +87,6 @@ public class PageComponent<TState>: Component<TState>
     {
         UserState.StateChanged -= OnStateChanged;
         base.Dispose();
-        GC.SuppressFinalize(this);
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -78,14 +94,7 @@ public class PageComponent<TState>: Component<TState>
         if ((UserState.Value.Authorized && (PageAccess & PageAccessType.OnlyPrivate) == PageAccessType.Inaccessible)
             || (!UserState.Value.Authorized && (PageAccess & PageAccessType.OnlyPublic) == PageAccessType.Inaccessible))
         {
-            if (Navigation.CanNavigateBack)
-            {
-                Navigation.NavigateBack();
-            }
-            else
-            {
-                Navigation.NavigateTo(Redirect);
-            }
+            Navigation.NavigateTo(Redirect);
         }
     }
 

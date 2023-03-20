@@ -1,0 +1,24 @@
+<span class="body @ValueToCssClass(Value)">
+    @Value rank
+</span>
+
+@code {
+    [Parameter]
+    public int Value { get; set; } = 9;
+
+    public static string ValueToCssClass(int rank)
+    {
+        if (rank <= 3)
+        {
+            return "red";
+        }
+        else if (rank <= 6)
+        {
+            return "blue";
+        }
+        else
+        {
+            return "green";
+        }
+    }
+}

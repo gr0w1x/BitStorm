@@ -3,8 +3,12 @@ using Types.Entities;
 
 namespace WebClient.Store.User;
 
+public record InitiateAction;
+
 public record SetTokensAction(AccessRefreshTokensDto Tokens);
 
-public record SetUserAction(IUser User);
+public record SetUserAction(PublicUser User);
 
-public class SignOutAction {};
+public record LoadUserAction(Guid UserId);
+
+public record SignOutAction;

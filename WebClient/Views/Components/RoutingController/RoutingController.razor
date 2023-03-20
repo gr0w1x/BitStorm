@@ -1,0 +1,33 @@
+@using WebClient.Store.User
+@using WebClient.Views.Layouts.MainLayout
+@using WebClient.Views.Components.CircleSpinner
+@using WebClient.Views.Components.DateTimeInput
+
+@inherits WebClient.Views.Components.ReduxComponent<UserState>
+
+@if(ComponentState.Value.Initialized)
+{
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
+        </Found>
+        <NotFound>
+            <PageTitle>Not found</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p role="alert">Sorry, there's nothing at this address. But you can test unused <code>DateTimeInput</code></p>
+                <DateTimeInput @bind-Value="@DateTime" /> <br />
+                Date: @DateTime
+            </LayoutView>
+        </NotFound>
+    </Router>
+}
+else
+{
+    <div class="loading">
+        <CircleSpinner Size="10vmin" />
+    </div>
+}
+
+@code {
+    private DateTime DateTime { get; set; } = DateTime.Now;
+}

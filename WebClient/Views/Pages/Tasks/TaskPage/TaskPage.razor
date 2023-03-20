@@ -1,0 +1,43 @@
+@page "/tasks/{taskId?}"
+
+@using WebClient.Store.Pages.TaskPage
+@using WebClient.Views.Components
+@using WebClient.Views.Components.TaskCard
+@using WebClient.Views.Components.CircleSpinner
+@using WebClient.Views.Components.ResultStatus
+
+@inherits PageComponent<TaskPageState>
+
+@switch(ComponentState.Value.UxState)
+{
+    case UxState.Success:
+    {
+        @if (ComponentState.Value.Task == null)
+        {
+            <ResultStatus Icon="fa-solid fa-5x fa-circle-question" Title="No task found" />
+        }
+        else
+        {
+            <TaskCard Model="@ComponentState.Value.Task" />
+            @if (ComponentState.Value.Task.TaskDto.Task.Description != null)
+            {
+                <div class="editor-preview">
+                    @((MarkupString)Markdig.Markdown.ToHtml(ComponentState.Value.Task.TaskDto.Task.Description!, MarkdownPipeline))
+                </div>
+            }
+        }
+        break;
+    }
+    case UxState.Error:
+    {
+        <ResultStatus Icon="fa-solid fa-5x fa-circle-exclamation" Title="Ooops!">
+            @ComponentState.Value.ServerError <br>
+        </ResultStatus>
+        break;
+    }
+    case UxState.Loading:
+    {
+        <CircleSpinner />
+        break;
+    }
+}

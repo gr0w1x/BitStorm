@@ -1,0 +1,22 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using WebClient.Views.Components.SectionButton
+
+@typeparam TItem where TItem: IComparable
+
+@inherits InputSelect<TItem>
+
+<div class="btn-group">
+    <button type="button" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+        @RenderSelected(Value)
+    </button>
+    <ul class="dropdown-menu">
+        @foreach (var item in Items)
+        {
+            <li>
+                <SectionButton @onclick="(() => OnSelect(item))" class="dropdown-item" type="button">
+                    @RenderItem(item, item.CompareTo(Value) == 0)
+                </SectionButton>
+            </li>
+        }
+    </ul>
+</div>

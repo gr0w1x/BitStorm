@@ -45,29 +45,51 @@ body,
     font-size: var(--text-size);
     font-family: var(--text-font);
     background-color: var(--background);
-}
-
-.theme-provider[data-theme="dark"] {
-    --background: #1C2733;
-    --background-alt: #102633;
-
-    --text: #9CAEF0;
-    --control: #7d90d3;
-    --surface: #224F6B;
-
-    --success-text: #58EA6F;
-    --success-control: #37AB4A;
-
-    --error-text: #E95679;
-    --error-control: #AB374C;
 
     --text-font: "Montserrat";
     --header-font: "Open Sans";
     --button-font: "Inconsolata";
+    --mono-font: "JetBrains Mono";
 
-    --h1-size: 2.5rem;
-    --text-size: 1.25rem;
-    --caption-size: 1rem;
+    --h1-size: 1.75rem;
+    --h2-size: 1.5rem;
+    --h3-size: 1.25rem;
+    --text-size: 1rem;
+    --caption-size: 0.85rem;
+}
+
+.theme-provider[data-theme="Dark"] {
+    --background: #1C2733;
+    --background-alt: #121b24;
+
+    --text: #9CAEF0;
+    --control: #7d90d3;
+    --surface: #12354b;
+
+    --success-text: #58EA6F;
+    --success-control: #37AB4A;
+    --success-surface: #0e3a15;
+
+    --error-text: #E95679;
+    --error-control: #AB374C;
+    --error-surface: #44131b;
+}
+
+.theme-provider[data-theme="Light"] {
+    --background: #eee;
+    --background-alt: #ddd;
+
+    --text: #333;
+    --control: #555;
+    --surface: #ccc;
+
+    --success-text: #58EA6F;
+    --success-control: #37AB4A;
+    --success-surface: #0e3a15;
+
+    --error-text: #E95679;
+    --error-control: #AB374C;
+    --error-surface: #44131b;
 }
 
 h1,
@@ -77,15 +99,27 @@ h4,
 h5,
 h6 {
     font-family: var(--header-font);
+    font-weight: bold !important;
     margin: 0;
     cursor: default;
+}
+
+p {
+    margin: 0;
 }
 
 h1 {
     font-size: var(--h1-size);
 }
+h2 {
+    font-size: var(--h2-size);
+}
+h3 {
+    font-size: var(--h3-size);
+}
 
 a {
+    color: var(--text) !important;
     cursor: pointer;
     text-decoration: underline;
     opacity: 0.75;
@@ -114,11 +148,17 @@ img.no-select {
     color: var(--error-text);
 }
 
-* {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
+}
+
+* {
     scrollbar-width: thin;
     scrollbar-color: var(--text) var(--transparent);
 }
+
 *::-webkit-scrollbar {
     width: 7px;
     height: 7px;
@@ -127,4 +167,60 @@ img.no-select {
     border-radius: 12px;
     border: 3px solid var(--text);
     background-color: var(--text);
+}
+
+button {
+    cursor: pointer;
+}
+
+button,
+input,
+select,
+.input-like {
+    outline: none;
+    background: transparent;
+    color: var(--text);
+    font-size: var(--text-size);
+    font-family: var(--text-font);
+    transition: 0.25s ease-in-out;
+    transition-property: color, border-color, opacity;
+}
+input::placeholder {
+    color: var(--text);
+    opacity: 0.5;
+}
+
+button[disabled],
+input[disabled],
+select[disabled] {
+    opacity: 0.5;
+}
+
+button.filled,
+.nav-link.active.show {
+    background-color: var(--control) !important;
+}
+
+.nav-link {
+    font-size: var(--caption-size);
+    padding: 0.25rem 0.5rem;
+}
+
+.theme-provider[data-theme="Light"] button.filled,
+.theme-provider[data-theme="Light"] .nav-link.active.show {
+    color: white !important;
+    mix-blend-mode: multiply;
+}
+.theme-provider[data-theme="Dark"] button.filled,
+.theme-provider[data-theme="Dark"] .nav-link.active.show {
+    color: black !important;
+    mix-blend-mode: screen;
+}
+
+button.filled:hover,
+button.filled:focus {
+    background-color: var(--text) !important;
+}
+button.caption {
+    letter-spacing: normal;
 }

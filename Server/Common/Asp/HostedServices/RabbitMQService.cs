@@ -14,7 +14,7 @@ public abstract class RabbitMqService: IHostedService
 {
     private readonly IConnectionFactory _factory;
     private readonly ILogger<RabbitMqService> _logger;
-    private readonly RabbitMqProvider _provider;
+    protected readonly RabbitMqProvider Provider;
 
     protected RabbitMqService(
         IConnectionFactory factory,
@@ -24,24 +24,24 @@ public abstract class RabbitMqService: IHostedService
     {
         _factory = factory;
         _logger = logger;
-        _provider = provider;
+        Provider = provider;
     }
 
     protected abstract void OnModeling(IModel model);
 
     private void Stop()
     {
-        if (_provider.Model?.IsOpen ?? false)
+        if (Provider.Model?.IsOpen ?? false)
         {
-            _provider.Model.Close();
+            Provider.Model.Close();
         }
-        if (_provider.Connection?.IsOpen ?? false)
+        if (Provider.Connection?.IsOpen ?? false)
         {
-            _provider.Connection.Close();
+            Provider.Connection.Close();
         }
 
-        _provider.Model = null;
-        _provider.Connection = null;
+        Provider.Model = null;
+        Provider.Connection = null;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -49,10 +49,10 @@ public abstract class RabbitMqService: IHostedService
         try
         {
             var connection = _factory.CreateConnection();
-            _provider.Connection = connection;
+            Provider.Connection = connection;
 
             var model = connection.CreateModel();
-            _provider.Model = model;
+            Provider.Model = model;
 
             OnModeling(model);
 

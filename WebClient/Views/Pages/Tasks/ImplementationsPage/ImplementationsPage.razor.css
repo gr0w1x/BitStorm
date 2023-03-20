@@ -1,0 +1,83 @@
+.layout,
+.edit-implementations-layout {
+    height: 100%;
+}
+
+.details,
+.solutions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+@media screen and (max-width: 800px) {
+    .edit-implementations-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    ::deep .editor {
+        height: 500px;
+    }
+
+    .buttons {
+        padding-bottom: 25px;
+    }
+}
+
+@media screen and (min-width: 800px) {
+    .edit-implementations-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 50px 1fr auto;
+        align-content: center;
+        justify-content: center;
+        align-items: stretch;
+        justify-items: stretch;
+        height: 100%;
+        grid-gap: 10px;
+    }
+
+    .title {
+        grid-area: 1 / 1;
+    }
+
+    .languages {
+        grid-area: 1 / 2;
+    }
+
+    .details {
+        grid-row: 2 / -1;
+        grid-column: 1;
+    }
+
+    .solutions {
+        grid-area: 2 / 2;
+    }
+
+    .buttons {
+        grid-area: 3 / 2;
+    }
+
+    ::deep .tab-content {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    ::deep .tab-pane.active.show {
+        flex-grow: 1;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        height: 0;
+    }
+}
+
+.buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    gap: 10px;
+}

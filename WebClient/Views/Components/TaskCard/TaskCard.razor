@@ -1,0 +1,74 @@
+@using WebClient.Services
+@using WebClient.Models
+@using WebClient.Constants
+@using WebClient.Views.Components.Rank
+
+<div class="task-card">
+    <h3 class="title">
+        <span class="caption">
+            <Rank Value="@Model.TaskDto.Task.Level" />
+        </span>
+        @Model.TaskDto.Task.Title
+    </h3>
+    <div class="labels">
+        <span class="label">
+            <i class="fa-regular fa-star" />
+            @Model.TaskDto.Likes
+            likes
+        </span>
+        <span class="label">
+            <i class="fa-solid fa-user"></i>
+            by
+            @if(_loaded)
+            {
+                @if (Model.Author == null)
+                {
+                    <span>???</span>
+                }
+                else
+                {
+                    <a href="@Routes.UserPage(Model.Author.Id)">
+                        @Model.Author.Username
+                    </a>
+                }
+            }
+        </span>
+    </div>
+    <div class="tags caption">
+        <i class="fa-solid fa-tag"></i>
+        @foreach (var tag in Model.TaskDto.Task.Tags)
+        {
+            <span class="tag">@tag</span>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public TaskCardModel Model { get; set; }
+
+    [Inject]
+    public UsersService UsersService { get; set; }
+
+    protected bool _loaded;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await LoadAuthor();
+    }
+
+    protected async Task LoadAuthor()
+    {
+        try
+        {
+            Model.Author = await UsersService.GetUser(Model.TaskDto.Task.AuthorId);
+            StateHasChanged();
+        }
+        catch { }
+        finally
+        {
+            _loaded = true;
+        }
+    }
+}

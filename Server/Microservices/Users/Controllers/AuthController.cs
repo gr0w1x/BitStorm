@@ -2,7 +2,6 @@ using CommonServer.Asp.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Types.Dtos;
-using Users.Models;
 using Users.Services;
 
 namespace Users.Controllers;

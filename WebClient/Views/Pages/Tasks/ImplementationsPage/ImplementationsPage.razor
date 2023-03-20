@@ -1,0 +1,103 @@
+@page "/tasks/{taskId}/implementations"
+
+@using Blazorise
+@using Types.Languages
+@using WebClient.Store.Pages.ImplementationsPage
+@using WebClient.Views.Components
+@using WebClient.Views.Components.CodeEditor
+@using WebClient.Views.Components.LanguageSelect
+@using WebClient.Views.Components.Button
+@using WebClient.Views.Components.MarkdownEditor
+
+@inherits ReduxComponent<ImplementationsPageState>
+
+<div class="layout">
+    <div class="edit-implementations-layout">
+        <h1 class="title">Edit Implementations</h1>
+
+        <div class="languages">
+            <LanguageSelect
+                LanguagesDictionary="@CodeLanguages.LanguagesDictionary"
+                SelectedLanguageVersion="@LanguageVersion"
+                SelectedLanguageVersionChanged="@OnLanguageVersionChanged" />
+        </div>
+
+        <div class="details">
+            <Tabs
+                RenderMode="TabsRenderMode.LazyLoad"
+                @bind-SelectedTab="@DetailsTab"
+                Pills="true">
+                <Items>
+                    <Tab Name="details">Details</Tab>
+                    <Tab Name="test">Test Cases</Tab>
+                    <Tab Name="example-test">Example Test Cases</Tab>
+                    <Tab Name="output">Output</Tab>
+                </Items>
+                <Content>
+                    <TabPanel Name="details">
+                        <MarkdownEditor
+                            Placeholder="Type details..."
+                            @bind-Value="CurrentImplementation.Details" />
+                    </TabPanel>
+                    <TabPanel Name="test">
+                        <CodeEditor
+                            Id="tests"
+                            Language="@(LanguageVersion!.Language)"
+                            @bind-Value="CurrentImplementation.TestCases" />
+                    </TabPanel>
+                    <TabPanel Name="example-test">
+                        <CodeEditor
+                            Id="example-tests"
+                            Language="@(LanguageVersion!.Language)"
+                            @bind-Value="CurrentImplementation.ExampleTestCases" />
+                    </TabPanel>
+                    <TabPanel Name="output">
+                        Check tests...
+                    </TabPanel>
+                </Content>
+            </Tabs>
+        </div>
+
+        <div class="solutions">
+            <Tabs
+                RenderMode="TabsRenderMode.LazyLoad"
+                @bind-SelectedTab="@SolutionsTab"
+                Pills="true">
+                <Items>
+                    <Tab Name="completed">Completed Solution</Tab>
+                    <Tab Name="initial">Initial Solution</Tab>
+                    <Tab Name="preloaded">Preloaded</Tab>
+                </Items>
+                <Content>
+                    <TabPanel Name="completed">
+                        <CodeEditor
+                            Id="completed"
+                            Language="@(LanguageVersion!.Language)"
+                            @bind-Value="CurrentImplementation.CompletedSolution" />
+                    </TabPanel>
+                    <TabPanel Name="initial">
+                        <CodeEditor
+                            Id="initial"
+                            Language="@(LanguageVersion!.Language)"
+                            @bind-Value="CurrentImplementation.InitialSolution" />
+                    </TabPanel>
+                    <TabPanel Name="preloaded">
+                        <CodeEditor
+                            Id="preloaded"
+                            Language="@(LanguageVersion!.Language)"
+                            @bind-Value="CurrentImplementation.Preloaded" />
+                    </TabPanel>
+                </Content>
+            </Tabs>
+        </div>
+
+        <div class="buttons">
+            <WebClient.Views.Components.Button.Button>
+                DELETE
+            </WebClient.Views.Components.Button.Button>
+            <WebClient.Views.Components.Button.Button class="filled">
+                SAVE
+            </WebClient.Views.Components.Button.Button>
+        </div>
+    </div>
+</div>

@@ -9,27 +9,17 @@ button {
     font-family: var(--text-font);
     font-weight: bolder;
     letter-spacing: 3px;
-    padding: 5px 15px;
+    padding: 2px 7px;
     transition: 0.25s ease-in-out;
     transition-property: color border-color opacity;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
 }
 
 button:hover,
 button:focus {
     border-color: var(--text);
-}
-
-button[disabled] {
-    opacity: 0.5;
-}
-
-button.filled {
-    background-color: var(--control);
-    color: black;
-    mix-blend-mode: screen;
-}
-button.filled:hover,
-button.filled:focus {
-    background-color: var(--text);
 }

@@ -11,7 +11,10 @@
 }
 
 @keyframes lds-default {
-    0%, 20%, 80%, 100% {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    20%, 80% {
         transform: translate(-50%, -50%) scale(1);
     }
     50% {

@@ -1,0 +1,21 @@
+@layout WebClient.Views.Layouts.SignLayout.SignLayout
+@using Microsoft.AspNetCore.Components.Forms
+@using WebClient.Views.Components
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public EditContext Context { get; set; }
+
+    [Parameter]
+    public EventCallback<EditContext> OnSubmit { get; set; }
+}
+
+<EditForm EditContext="@Context" OnValidSubmit="@OnSubmit">
+    <DataAnnotationsValidator />
+    <div class="form">
+        @ChildContent
+    </div>
+</EditForm>

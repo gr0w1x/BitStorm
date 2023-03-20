@@ -1,0 +1,83 @@
+@page "/tasks/create"
+
+@using Microsoft.AspNetCore.Components.Forms
+@using WebClient.Views.Components
+@using WebClient.Views.Components.InputWrapper
+@using WebClient.Views.Components.OneLineInput
+@using WebClient.Views.Components.NumberInput
+@using WebClient.Views.Components.SelectInput
+@using WebClient.Views.Components.Button
+@using WebClient.Views.Components.CircleSpinner
+@using PSC.Blazor.Components.MarkdownEditor 
+
+@using WebClient.Store.Pages.CreateTaskPage
+
+@inherits FormComponent<CreateTaskPageState, CreateTaskDtoWithTagsSeparated>
+
+<div class="layout">
+    <EditForm EditContext="@_context" OnValidSubmit="@OnSubmit">
+        <DataAnnotationsValidator />
+        <div class="create-task-layout">
+            <div class="inputs">
+                <h1>Create Task</h1>
+                <InputWrapper Title="Title" For="@(() => _dto.Title)">
+                    <OneLineInput
+                        id="title"
+                        placeholder="Type title ..."
+                        disabled="@(!CanEdit)"
+                        @bind-Value="_dto.Title" />
+                </InputWrapper>
+                <InputWrapper Title="Suggested level" For="@(() => _dto.SuggestedLevel)">
+                    <NumberInput
+                        id="suggested-level"
+                        step="1" min="1" max="9"
+                        disabled="@(!CanEdit)"
+                        @bind-Value="_dto.SuggestedLevel" />
+                </InputWrapper>
+                <InputWrapper Title="Tags (separated by comma)" For="@(() => _dto.TagsSeparated)">
+                    <OneLineInput
+                        id="tags-separated"
+                        placeholder="problem, math, algorithms, ..."
+                        disabled="@(!CanEdit)"
+                        @bind-Value="_dto.TagsSeparated" />
+                </InputWrapper>
+                <InputWrapper Title="Visibility" For="@(() => _dto.Visibility)">
+                    <SelectInput
+                        id="visibility"
+                        disabled="@(!CanEdit)"
+                        @bind-Value="_dto.Visibility"
+                        TItem="@TaskVisibility"
+                        Items="@Visibilities" />
+                </InputWrapper>
+            </div>
+            <div class="markdown">
+                <InputWrapper Title="Description" For="@(() => _dto.Description)">
+                    <MarkdownEditor
+                        LineNumbers="true"
+                        UploadImage="false"
+                        Placeholder="Type description..."
+                        @bind-Value="_dto.Description"
+                        @bind-Value:event="ValueChanged" />
+                </InputWrapper>
+                @if (ComponentState.Value.UxState.Is(UxState.Error))
+                {
+                    <span class="caption error right-align">@ComponentState.Value.ServerError</span>
+                }
+                <Button
+                    type="submit"
+                    disabled="@(!CanSubmit)"
+                    class="filled">
+                    @if((ComponentState.Value.UxState & UxState.Loading) != UxState.None)
+                    {
+                        <CircleSpinner Color="black" Count="8" Size="24px" />
+                    }
+                    CREATE
+                </Button>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    TaskVisibility[] Visibilities => Enum.GetValues<TaskVisibility>();
+}

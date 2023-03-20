@@ -1,0 +1,11 @@
+@code {
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object> InputAttributes { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+}
+
+<button @attributes="InputAttributes">
+    @ChildContent
+</button>

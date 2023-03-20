@@ -1,0 +1,13 @@
+@using WebClient.Views.Components.UserMenu
+@using WebClient.Views.Components.NavBar
+@inherits LayoutComponentBase
+
+<div class="layout">
+    <NavBar />
+    <div class="user-menu">
+        <UserMenu />
+    </div>
+    <div class="main">
+        @Body
+    </div>
+</div>

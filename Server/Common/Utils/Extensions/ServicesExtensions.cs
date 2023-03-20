@@ -1,5 +1,6 @@
 using CommonServer.Asp.HostedServices;
 using CommonServer.Data.Types;
+using Gateway.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -22,7 +23,7 @@ public static class ServicesExtensions
         services.AddSingleton(jwtOptions);
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddScheme<JwtBearerOptions, JwtBearerHandler>(
+            .AddScheme<JwtBearerOptions, JwtBearerAdsToContextHandler>(
                 JwtBearerDefaults.AuthenticationScheme,
                 (options) =>
                 {

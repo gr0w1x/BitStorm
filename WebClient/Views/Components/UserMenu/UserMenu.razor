@@ -1,0 +1,131 @@
+@using WebClient.Store.User
+@using WebClient.Store.UserMenu
+@using WebClient.Store.Common
+@using WebClient.Store.Theme
+@using WebClient.Views.Components
+@using WebClient.Views.Components.Button
+@using WebClient.Views.Components.SectionButton
+@using WebClient.Views.Components.CircleSpinner
+@using WebClient.Constants
+@using WebClient.Services
+@inherits WebClient.Views.Components.UxStateComponent<UserMenuState>
+
+<div class="user-menu" >
+    <SectionButton @onclick="() => Dispatcher.Dispatch(new ToggleThemeAction())">
+        <i class="fa-solid @(ThemeIcon) icon" />
+    </SectionButton>
+    @switch (ComponentState.Value.UxState)
+    {
+        case UxState.Success:
+        {
+            @if (UserState.Value.User != null)
+            {
+                <div class="btn-group">
+                    <SectionButton type="button" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        @if(UserState.Value.User.Avatar != null)
+                        {
+                            <img width="25" height="25" src="@UserState.Value.User.Avatar">
+                        }
+                        @UserState.Value.User.Username
+                    </SectionButton>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <SectionButton class="dropdown-item">
+                                Manage Account
+                            </SectionButton>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <SectionButton class="dropdown-item" onclick="@(() => Navigation.NavigateTo(Routes.CreateTaskPage))">
+                                New Task
+                            </SectionButton>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <SectionButton class="dropdown-item" onclick="@SignOut">
+                                Sign Out
+                            </SectionButton>
+                        </li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <SectionButton class="caption" @onclick="() => Navigation.NavigateTo(Routes.SignInPage)">
+                    Sign In
+                </SectionButton>
+                <SectionButton class="filled caption" @onclick="() => Navigation.NavigateTo(Routes.SignUpPage)">
+                    Sign Up
+                </SectionButton>
+            }
+            break;
+        }
+        case UxState.Idle:
+        case UxState.Loading:
+        {
+            <SectionButton disabled>
+                <CircleSpinner />
+            </SectionButton>
+            break;
+        }
+        case UxState.Error:
+        {
+            <SectionButton @onclick="RetryLoadUser">
+                <i class="fa-solid fa-triangle-exclamation icon" />
+            </SectionButton>
+            break;
+        }
+    }
+</div>
+
+@code {
+    [Inject]
+    public IState<UserState> UserState { get; set; }
+
+    [Inject]
+    public IState<ThemeState> ThemeState { get; set; }
+
+    [Inject]
+    public Navigation Navigation { get; set; }
+
+    public string ThemeIcon => ThemeState.Value.Theme == Theme.Light ? "fa-sun" : "fa-moon";
+
+    [Inject]
+    public UsersService UsersService { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        UserState.StateChanged += OnStateChanged;
+        ThemeState.StateChanged += OnStateChanged;
+        RetryLoadUser();
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        UserState.StateChanged -= OnStateChanged;
+        ThemeState.StateChanged -= OnStateChanged;
+        GC.SuppressFinalize(this);
+    }
+
+    protected void SignOut()
+    {
+        Dispatcher.Dispatch(new SignOutAction());
+    }
+
+    protected void RetryLoadUser()
+    {
+        if (UserState.Value.Authorized)
+        {
+            if (UserState.Value.User == null || UserState.Value.User.Id != UserState.Value.Tokens!.UserId)
+            {
+                Dispatcher.Dispatch(new LoadUserAction(UserState.Value.Tokens!.UserId));
+            }
+        }
+        else if (!ComponentState.Value.UxState.Is(UxState.Success))
+        {
+            Dispatcher.Dispatch(new SetUxState<UserMenuState>(UxState.Success));
+        }
+    }
+}

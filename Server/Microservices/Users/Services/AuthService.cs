@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Net;
 using CommonServer.Asp.HostedServices;
 using CommonServer.Data.Messages;
 using CommonServer.Data.Repositories;
@@ -51,7 +52,7 @@ public class AuthService
     {
         if (!user.Confirmed)
         {
-            return (false, Results.BadRequest(new ErrorDto("User is not confirmed")));
+            return (false, Results.BadRequest(new ErrorDto("User is not confirmed", HttpStatusCode.BadRequest)));
         }
 
         // TODO: add banned check
@@ -87,7 +88,7 @@ public class AuthService
 
         if (user == null || !_hasher.Compare(password, user.Password))
         {
-            return Results.NotFound(new ErrorDto("Invalid email or password"));
+            return Results.NotFound(new ErrorDto("Invalid email or password", HttpStatusCode.NotFound));
         }
 
         return await TryCreateAndSaveTokens(user);
@@ -103,7 +104,7 @@ public class AuthService
                 user.Username == username
                     ? $"username {user.Username}"
                     : $"email {user.Email}"
-            )} already exists"));
+            )} already exists", HttpStatusCode.BadRequest));
         }
 
         if (_rabbitMqProvider.Model == null)
@@ -157,19 +158,19 @@ public class AuthService
 
         if (confirm == null)
         {
-            return Results.BadRequest(new ErrorDto("Wrong confirm code"));
+            return Results.BadRequest(new ErrorDto("Wrong confirm code", HttpStatusCode.BadRequest));
         }
 
         User? user = await _usersRepository.GetByEmailOrUsername(confirm.Email, String.Empty);
 
         if (user == null || (DateTimeOffset.UtcNow - user.Registered) > UserConstants.ConfirmPeriod)
         {
-            return Results.BadRequest(new ErrorDto("Account confirmation expired"));
+            return Results.BadRequest(new ErrorDto("Account confirmation expired", HttpStatusCode.BadRequest));
         }
 
         if (user.Confirmed)
         {
-            return Results.BadRequest(new ErrorDto("Already confirmed"));
+            return Results.BadRequest(new ErrorDto("Already confirmed", HttpStatusCode.BadRequest));
         }
 
         user.Confirmed = true;
@@ -187,14 +188,14 @@ public class AuthService
 
         if (refreshTokenRecord == null || refreshTokenRecord.Expired < DateTimeOffset.UtcNow)
         {
-            return Results.NotFound(new ErrorDto("Refresh token invalid or expired"));
+            return Results.NotFound(new ErrorDto("Refresh token invalid or expired", HttpStatusCode.NotFound));
         }
 
         User? user = await _usersRepository.GetById(refreshTokenRecord.UserId);
 
         if (user == null)
         {
-            return Results.NotFound(new ErrorDto("User was deleted"));
+            return Results.NotFound(new ErrorDto("User was deleted", HttpStatusCode.NotFound));
         }
 
         await _refreshTokenRecordsRepository.DeleteExpired();

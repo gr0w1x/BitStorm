@@ -1,7 +1,19 @@
 {
   "Routes": [
     {
-      "DownstreamPathTemplate": "/{path}",
+      "DownstreamPathTemplate": "/auth/{path}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "users",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/auth/{path}",
+      "UpstreamHttpMethod": [ "GET", "OPTIONS", "POST", "PUT" ]
+    },
+    {
+      "DownstreamPathTemplate": "/users/{path}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -13,7 +25,7 @@
       "UpstreamHttpMethod": [ "GET", "OPTIONS", "POST", "PUT" ]
     },
     {
-      "DownstreamPathTemplate": "/{path}",
+      "DownstreamPathTemplate": "/tasks/{path}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -26,6 +38,30 @@
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
       }
+    },
+    {
+      "DownstreamPathTemplate": "/tasks/public/{path}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "tasks",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/public/tasks/{path}",
+      "UpstreamHttpMethod": [ "GET", "OPTIONS", "POST", "PUT" ]
+    },
+    {
+      "DownstreamPathTemplate": "/languages/{path}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "solutions",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/public/languages/{path}",
+      "UpstreamHttpMethod": [ "GET", "OPTIONS", "POST", "PUT" ]
     }
   ]
 }

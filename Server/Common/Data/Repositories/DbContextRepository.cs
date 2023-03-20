@@ -18,7 +18,7 @@ public abstract class DbContextRepository<TEntity, TContext, TKey>: IRepository<
 
     protected DbSet<TEntity> Entities => GetEntitiesBy(_context);
 
-    public async Task<TEntity?> GetById(TKey id) =>
+    public virtual async Task<TEntity?> GetById(TKey id) =>
         await Entities.FindAsync(id);
 
     public async Task<IEnumerable<TEntity>> Select(int? skip, int? take) =>
