@@ -1,3 +1,4 @@
+using System.Net;
 using Types.Dtos;
 using Users.Repositories;
 
@@ -17,7 +18,7 @@ public class UsersService
         var user = await _usersRepository.GetById(guid);
         if (user == null)
         {
-            return Results.NotFound(new ErrorDto("User not found"));
+            return Results.NotFound(new ErrorDto("User not found", HttpStatusCode.NotFound));
         }
         return Results.Json(user);
     }

@@ -63,9 +63,10 @@ builder.Services.AddDefaultSwaggerGen();
 
 var app = builder.Build();
 
+// Migration
 using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
 {
-    scope.ServiceProvider.GetRequiredService<IUnitOfWork>().Migrate();
+    await scope.ServiceProvider.GetRequiredService<IUnitOfWork>().Migrate();
 }
 
 if (app.Environment.IsDevelopment())

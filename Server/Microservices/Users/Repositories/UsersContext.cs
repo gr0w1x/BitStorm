@@ -1,4 +1,5 @@
 using CommonServer.Data.Models;
+using CommonServer.Data.Repositories;
 using CommonServer.Utils.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
@@ -6,7 +7,7 @@ using Users.Models;
 
 namespace Users.Repositories;
 
-public class UsersContext: DbContext
+public class UsersContext: AbstractDbContext<UsersContext>
 {
     public DbSet<User> Users { get; set; }
     public DbSet<RefreshTokenRecord> RefreshTokenRecords { get; set; }
@@ -15,21 +16,10 @@ public class UsersContext: DbContext
     public UsersContext(DbContextOptions<UsersContext> options): base(options) { }
 }
 
-public class UserContextFactory : IDesignTimeDbContextFactory<UsersContext>
+public class UserContextFactory : AbstractMySqlContextFactory<UsersContext>
 {
-    public UsersContext CreateDbContext(string[] args)
-    {
-        var optionsBuilder = new DbContextOptionsBuilder<UsersContext>();
+    protected override string ConnectionName => "UsersDB";
 
-        ConfigurationBuilder builder = new ();
-        builder.AddEnvironmentVariables();
-        builder.AddDbConnection(builder.Build(), "UsersDB");
-
-        IConfigurationRoot config = builder.Build();
-        string connectionString = config.GetConnectionString("UsersDB")!;
-
-        optionsBuilder.UseMySQL(connectionString);
-
-        return new UsersContext(optionsBuilder.Options);
-    }
+    protected override UsersContext MakeContext(DbContextOptions<UsersContext> options)
+        => new(options);
 }

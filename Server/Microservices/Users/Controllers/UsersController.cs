@@ -5,7 +5,7 @@ using Users.Services;
 namespace Users.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("users")]
 public class UsersController
 {
     private readonly UsersService _usersService;
