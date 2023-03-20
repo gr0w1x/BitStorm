@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "scripts": {
+    "test": "node ./node_mdules/mocha/bin/mocha.js test.js"
+  },
+  "dependencies": {
+    "chai": "^4.3.7",
+    "memfs": "^3.4.13",
+    "mocha": "^10.2.0",
+    "vm2": "^3.9.14"
+  }
+}
