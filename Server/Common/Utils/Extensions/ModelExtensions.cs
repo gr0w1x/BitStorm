@@ -13,4 +13,23 @@ public static class ModelExtensions
             autoDelete: false
         );
     }
+
+    public static QueueDeclareOk ExecutorQueueDeclare(this IModel model, string name, bool forExecutor = false)
+    {
+        var declare = model.QueueDeclare(
+            queue: name,
+            durable: false,
+            exclusive: false,
+            autoDelete: false
+        );
+        if (forExecutor)
+        {
+            model.BasicQos(
+                prefetchSize: 0,
+                prefetchCount: 1,
+                global: false
+            );
+        }
+        return declare;
+    }
 }
