@@ -33,8 +33,6 @@ services:
     image: mysql:8.0
     cap_add:
       - SYS_NICE
-    ports:
-      - '${USERS_DB_PORT}:${USERS_DB_PORT}'
     env_file:
       - .env
       - Server/Microservices/Users/.env
@@ -48,17 +46,28 @@ services:
     image: mysql:8.0
     cap_add:
       - SYS_NICE
-    ports:
-      - '${TASKS_DB_PORT}:${TASKS_DB_PORT}'
     env_file:
       - .env
       - Server/Microservices/Tasks/.env
     networks:
-      - users-db-network
+      - tasks-db-network
       - adminer-network
     volumes:
       - ./.docker-conf/tasks-db/init.sql:/docker-entrypoint-initdb.d/mysql-init.sql
       - ./.docker-conf/tasks-db/.cnf:/etc/mysql/conf.d/mysql.cnf
+  solutions-db:
+    image: mysql:8.0
+    cap_add:
+      - SYS_NICE
+    env_file:
+      - .env
+      - Server/Microservices/Solutions/.env
+    networks:
+      - solutions-db-network
+      - adminer-network
+    volumes:
+      - ./.docker-conf/solutions-db/init.sql:/docker-entrypoint-initdb.d/mysql-init.sql
+      - ./.docker-conf/solutions-db/.cnf:/etc/mysql/conf.d/mysql.cnf
   gateway:
     build:
       context: .
@@ -116,7 +125,26 @@ services:
       - Server/Microservices/Tasks/.env
     networks:
       - tasks-db-network
-      - gateway-network  
+      - gateway-network
+  solutions:
+    build:
+      context: .
+      dockerfile: Server/Microservices/Solutions/Dockerfile
+    depends_on:
+      solutions-db:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - '${SOLUTIONS_PORT}:80'
+    environment:
+      MYSQL_HOST: solutions-db
+    env_file:
+      - .env
+      - Server/Microservices/Solutions/.env
+    networks:
+      - solutions-db-network
+      - gateway-network
   mailer:
     build:
       context: .
@@ -131,6 +159,20 @@ services:
       - Server/Microservices/Mailer/.env
     environment:
       RABBITMQ_HOST: rabbitmq
+  executor-javascript-v18-15-0:
+    build:
+      context: .
+      dockerfile: Server/Executors/JavaScript/JavaScript_Node_v18_15_0/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - rabbitmq-network
+    env_file:
+      - .env
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      EXECUTOR_REQUEST_QUEUE: javascript-v18-15-0
 #  web-client:
 #    build:
 #      context: .
@@ -150,6 +192,8 @@ networks:
   users-db-network:
     driver: bridge
   tasks-db-network:
+    driver: bridge
+  solutions-db-network:
     driver: bridge
   gateway-network:
     driver: bridge

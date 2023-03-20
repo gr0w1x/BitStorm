@@ -14,6 +14,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebClient", "WebClient\WebC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Server\Common\Common.csproj", "{DCFD8E7F-03BE-4E77-898D-F5CC144B909F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Solutions", "Server\Microservices\Solutions\Solutions.csproj", "{145BD275-2FFA-4C08-937E-8E2566DEFDD7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExecutorTemplate", "Server\Executors\ExecutorTemplate\ExecutorTemplate.csproj", "{A5831297-E0DF-4A1D-86C3-CE2B1FF3EC3D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavaScript_Node_v18_15_0", "Server\Executors\JavaScript\JavaScript_Node_v18_15_0\JavaScript_Node_v18_15_0.csproj", "{2D883918-EB97-48BB-84E8-2C2FEC280D45}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +54,17 @@ Global
 		{DCFD8E7F-03BE-4E77-898D-F5CC144B909F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DCFD8E7F-03BE-4E77-898D-F5CC144B909F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DCFD8E7F-03BE-4E77-898D-F5CC144B909F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{145BD275-2FFA-4C08-937E-8E2566DEFDD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{145BD275-2FFA-4C08-937E-8E2566DEFDD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{145BD275-2FFA-4C08-937E-8E2566DEFDD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{145BD275-2FFA-4C08-937E-8E2566DEFDD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5831297-E0DF-4A1D-86C3-CE2B1FF3EC3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5831297-E0DF-4A1D-86C3-CE2B1FF3EC3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5831297-E0DF-4A1D-86C3-CE2B1FF3EC3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5831297-E0DF-4A1D-86C3-CE2B1FF3EC3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D883918-EB97-48BB-84E8-2C2FEC280D45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D883918-EB97-48BB-84E8-2C2FEC280D45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D883918-EB97-48BB-84E8-2C2FEC280D45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D883918-EB97-48BB-84E8-2C2FEC280D45}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
