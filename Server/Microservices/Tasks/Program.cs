@@ -1,28 +1,54 @@
+using CommonServer.Data.Repositories;
 using CommonServer.Utils.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Tasks.Repositories;
+using Tasks.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Builder configuration setup
+builder.Configuration.AddEnvironmentVariables();
+builder.Configuration.AddDbConnection(builder.Configuration, "TasksDB");
 
+// Builder services
+
+// Tasks DB
+builder.Services.AddDbContext<TasksContext>(
+    options => options.UseMySQL(builder.Configuration.GetConnectionString("TasksDB")!)
+);
+
+// Auth
+builder.Services.AddJwtAuth(builder.Configuration.GetJwtOptions());
+
+// Data layer
+builder.Services.AddScoped<IUnitOfWork, DbContextUnitOfWork<TasksContext>>();
+builder.Services.AddScoped<ITasksRepository, TasksRepository>();
+
+// Service layer
+builder.Services.AddScoped<TasksService>();
+
+// Controllers
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+// Swagger
+builder.Services.AddDefaultSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Migration
+using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+{
+    await scope.ServiceProvider.GetRequiredService<IUnitOfWork>().Migrate();
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
 app.UseDefaultCors();
-
-app.UseAuthorization();
 
 app.MapControllers();
 
