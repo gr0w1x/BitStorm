@@ -9,7 +9,9 @@ public record UserState
 {
     public AccessRefreshTokensDto? Tokens { get; init; } = null;
 
-    public IUser? User { get; init; } = null;
+    public PublicUser? User { get; init; } = null;
+
+    public bool Initialized { get; init; } = false;
 
     public bool Authorized =>
         Tokens != null;

@@ -1,0 +1,83 @@
+@using WebClient.Views.Components.SectionButton
+
+<div class="toggle">
+    <SectionButton
+        @onclick="@ToggleNavbar"
+        type="button">
+        <i class="fa-solid fa-bars" />
+    </SectionButton>
+</div>
+
+<nav class="navbar navbar-expand-lg collapse @(IsNavbarOpen ? "show" : "")">
+    <div class="container">
+        <ul class="navbar-nav flex-column">
+            <li class="nav-item">
+                <SectionButton>
+                    <img class="no-select" src="assets/icons/bitstorm.svg" width="50" height="30" alt="bitstorm"/>
+                    <span class="content">
+                        BitStorm
+                    </span>
+                </SectionButton>
+            </li>
+            <li class="nav-item">
+                <SectionButton>
+                    <i class="fa-solid fa-file-code" />
+                    <span class="content">
+                        Tasks
+                    </span>
+                </SectionButton>
+            </li>
+            <li class="nav-item">
+                <SectionButton>
+                    <i class="fa-solid fa-layer-group" />
+                    <span class="content">
+                        Collections
+                    </span>
+                </SectionButton>
+            </li>
+            <li class="nav-item">
+                <SectionButton>
+                    <i class="fa-solid fa-flag" />
+                    <span class="content">
+                        Clans
+                    </span>
+                </SectionButton>
+            </li>
+            <li class="nav-item">
+                <hr size="5">
+            </li>
+            <li class="nav-item">
+                <SectionButton>
+                    <i class="fa-solid fa-trophy" />
+                    <span class="content">
+                        Leaderboard
+                    </span>
+                </SectionButton>
+            </li>
+            <li class="nav-item">
+                <hr size="5">
+            </li>
+            <li class="nav-item">
+                <SectionButton>
+                    <i class="fa-solid fa-book" />
+                    <span class="content">
+                        Docs
+                    </span>
+                </SectionButton>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div
+    @onclick="@ToggleNavbar"
+    class="background @(IsNavbarOpen ? "show" : "")" />
+
+@code {
+    private bool IsNavbarOpen { get; set; }
+
+    private void ToggleNavbar()
+    {
+        IsNavbarOpen = !IsNavbarOpen;
+    }
+}

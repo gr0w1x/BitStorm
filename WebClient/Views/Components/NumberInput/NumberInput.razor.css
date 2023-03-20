@@ -1,0 +1,53 @@
+.number {
+    display: flex;
+    justify-content: space-between;
+    border: 2px solid;
+    border-color: var(--control);
+    border-radius: 5px;
+    padding: 0;
+    padding-left: 15px;
+    overflow: hidden;
+}
+
+input {
+    flex-basis: 100%;
+    padding: 5px 0;
+    border: none;
+    -moz-appearance: textfield;
+	-webkit-appearance: textfield;
+	appearance: textfield;
+}
+
+number:focus-visible,
+number:hover {
+    border-color: var(--text);
+}
+
+.number:has(*[disabled]) {
+    opacity: 0.5;
+}
+
+.number:focus-within:has(input.valid) {
+    --text: var(--success-text);
+    --control: var(--success-control);    
+}
+
+.number:has(input.invalid) {
+    --text: var(--error-text);
+    --control: var(--error-control);
+}
+
+.number input[type="number"]::-webkit-outer-spin-button,
+.number input[type="number"]::-webkit-inner-spin-button {
+	display: none;
+}
+
+.number-minus,
+.number-plus {
+	text-align: center;
+	font-weight: 600;
+	border: none;
+	display: block;
+	padding: 0 10px;
+    user-select: none;
+}

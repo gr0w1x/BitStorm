@@ -1,0 +1,30 @@
+button {
+    appearance: none;
+    -webkit-appearance: none;
+    border: 2px solid;
+    border-color: var(--control);
+    border-radius: 5px;
+    padding: 5px 15px;
+    width: max-content;
+}
+
+button:hover,
+button:focus {
+    border-color: var(--text);
+}
+
+ul {
+    background-color: var(--background-alt);
+}
+
+.dropdown-divider {
+    border-top-color: var(--text);
+}
+
+::deep .dropdown-item {
+    color: var(--text) !important;
+}
+
+::deep .select {
+    display: none;
+}

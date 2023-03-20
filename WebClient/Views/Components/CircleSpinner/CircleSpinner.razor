@@ -6,12 +6,12 @@
         double angle = 2 * Math.PI / Count * i;
         int sin = (int)(50 + 40 * Math.Sin(angle));
         int cos = (int)(50 + 40 * Math.Cos(angle));
-        <div style="animation-delay: @((int)(i * 1000f / Count))ms; top: @(sin)%; left: @(cos)%; background-color: @Color" />
+        <div style="animation-delay: @((int)(-i * 1000f / Count))ms; top: @(sin)%; left: @(cos)%; background-color: @Color" />
     }
 </div>
 
 @code {
-    private int _count = 12;
+    private int _count = 8;
     [Parameter]
     public int Count { get => _count; set => _count = value; }
 
@@ -19,7 +19,7 @@
     [Parameter]
     public string Size { get => _size; set => _size = value; }
 
-    private string _color = "var(--background)";
+    private string _color = "var(--text)";
     [Parameter]
     public string Color { get => _color; set => _color = value; }
 }

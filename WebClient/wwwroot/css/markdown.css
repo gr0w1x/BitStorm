@@ -1,0 +1,179 @@
+.EasyMDEContainer {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+
+.EasyMDEContainer .CodeMirror {
+    border: 2px solid var(--control);
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    background: var(--background);
+    color: var(--text);
+    flex-basis: 100%;
+}
+
+.EasyMDEContainer .CodeMirror-fullscreen {
+    background: var(--background);
+}
+
+.EasyMDEContainer .CodeMirror-fullscreen,
+.editor-toolbar.fullscreen {
+    z-index: 1000;
+}
+
+.EasyMDEContainer .CodeMirror-focused .CodeMirror-selected {
+    background: var(--surface);
+}
+
+.EasyMDEContainer .CodeMirror-gutters {
+    border-right: 2px solid var(--text);
+    background: transparent;
+}
+
+.editor-toolbar {
+    border-top: 2px solid var(--control);
+    border-left: 2px solid var(--control);
+    border-right: 2px solid var(--control);
+}
+
+.editor-toolbar,
+.editor-toolbar.fullscreen {
+    background: var(--surface);
+}
+
+.editor-toolbar.fullscreen::before {
+    background: -moz-linear-gradient(left, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%, rgba(255, 255, 255, 1)), color-stop(100%, rgba(255, 255, 255, 0)));
+    background: -webkit-linear-gradient(left, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
+    background: -o-linear-gradient(left, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
+    background: -ms-linear-gradient(left, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
+    background: linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.editor-toolbar.fullscreen::after {
+    background: -moz-linear-gradient(left, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%, rgba(255, 255, 255, 0)), color-stop(100%, rgba(255, 255, 255, 1)));
+    background: -webkit-linear-gradient(left, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
+    background: -o-linear-gradient(left, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
+    background: -ms-linear-gradient(left, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
+}
+
+.editor-toolbar button, .editor-toolbar .easymde-dropdown {
+    border: 2px solid transparent;
+    border-radius: 5px;
+}
+
+.editor-toolbar button.active,
+.editor-toolbar button:hover {
+    background: transparent;
+    border-color: var(--text);
+}
+
+.editor-toolbar i.separator {
+    border-left: 1px solid var(--text);
+    border-right: 1px solid var(--text);
+}
+
+.editor-toolbar button:after {
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    font-size: 65%;
+    vertical-align: text-bottom;
+    position: relative;
+    top: 2px;
+}
+
+.editor-toolbar button.table {
+    color: var(--text);
+}
+
+.editor-statusbar {
+    font-size: var(--caption-size);
+    color: var(--text);
+}
+
+.editor-preview-side {
+    border: 2px solid #ddd;
+}
+
+.editor-preview {
+    padding: 10px;
+    background: var(--background);
+}
+
+.editor-preview blockquote,
+.editor-preview pre {
+    background: var(--background-alt);
+    padding: 5px 15px;
+    border-radius: 5px;
+    margin-bottom: 0;
+}
+
+.editor-preview pre {
+    font-family: var(--mono-font);
+}
+
+.editor-preview table td,
+.editor-preview table th {
+    border: 2px solid var(--control);
+    padding: 5px;
+}
+
+.cm-s-easymde .cm-tag {
+    color: var(--text);
+}
+
+.cm-s-easymde .cm-attribute {
+    color: var(--text);
+}
+
+.cm-s-easymde .cm-string {
+    color: var(--text);
+}
+
+.cm-s-easymde .cm-comment {
+    background: rgba(0, 0, 0, .05);
+    border-radius: 2px;
+}
+
+.cm-s-easymde .cm-link {
+    color: var(--text);
+}
+
+.cm-s-easymde .cm-url {
+    color: var(--text);
+}
+
+.cm-s-easymde .cm-quote {
+    color: var(--text);
+}
+
+.cm-s-easymde .cm-error {
+    background-color: var(--surface);
+}
+
+.CodeMirror-linenumber {
+    color: var(--text);
+    font-family: var(--mono-font);
+    text-align: center;
+}
+
+.CodeMirror-cursor {
+    border-left-color: var(--text);
+}
+
+.editor-toolbar .easymde-dropdown {
+    background: linear-gradient(to bottom right, #fff 0%, #fff 84%, #333 50%, #333 100%);
+    border: 2px solid #fff;
+}
+
+.editor-toolbar .easymde-dropdown:hover {
+    background: linear-gradient(to bottom right, #fff 0%, #fff 84%, #333 50%, #333 100%);
+}
+
+.easymde-dropdown-content {
+    background-color: #f9f9f9;
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+}

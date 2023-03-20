@@ -1,0 +1,15 @@
+button {
+    background-color: transparent;
+    border: none;
+    font-weight: bolder;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+button:hover,
+button:focus {
+    background-color: var(--surface);
+}

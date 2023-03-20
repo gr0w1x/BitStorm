@@ -9,12 +9,16 @@
 
     <ItemGroup>
         <PackageReference Include="Blazored.LocalStorage" Version="4.3.0" />
+        <PackageReference Include="Blazorise.Bootstrap" Version="1.2.1" />
+        <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.2.1" />
+        <PackageReference Include="BlazorMonaco" Version="3.0.0" />
         <PackageReference Include="Fluxor" Version="5.7.0" />
         <PackageReference Include="Fluxor.Blazor.Web" Version="5.7.0" />
         <PackageReference Include="Fluxor.Blazor.Web.ReduxDevTools" Version="5.7.0" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.2" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.2" PrivateAssets="all" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
+        <PackageReference Include="PSC.Blazor.Components.MarkdownEditor" Version="2.0.10" />
     </ItemGroup>
 
     <ItemGroup>
@@ -27,14 +31,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <AdditionalFiles Include="Views\Components\TerminalLabel\TerminalLabel.razor" />
-      <AdditionalFiles Include="Views\Layouts\SignLayout\SignLayout.razor" />
-      <AdditionalFiles Include="Views\Pages\SignInPage\SignInPage.razor" />
+      <_ContentIncludedByDefault Remove="Views\Components\LanguageSelectWrapper\LanguageSelectWrapper.razor" />
     </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="Components\TerminalLabel\TerminalLabel.razor" />
-      <_ContentIncludedByDefault Remove="Layouts\SignLayout\SignLayout.razor" />
-    </ItemGroup>
-
 </Project>

@@ -5,10 +5,18 @@ namespace WebClient.Store.User;
 public static class UserReducers
 {
     [ReducerMethod]
+    public static UserState SetAccessReducer(UserState state, InitiateAction _) =>
+        state with
+        {
+            Initialized = true
+        };
+
+    [ReducerMethod]
     public static UserState SetAccessReducer(UserState state, SetTokensAction action) =>
         state with
         {
-            Tokens = action.Tokens
+            Tokens = action.Tokens,
+            Initialized = true
         };
 
     [ReducerMethod]

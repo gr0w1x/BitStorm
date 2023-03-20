@@ -1,0 +1,23 @@
+span {
+    background: var(--surface);
+	display: inline-block;
+    color: var(--text);
+	border: 0.15em solid var(--text);
+    border-radius: 0.1em;
+    padding: 0.1em 0.2em;
+	letter-spacing: 0;
+	text-align: center;
+	user-select: none;
+}
+
+.green {
+	--text: var(--success-text);
+	--control: var(--success-control);
+	--surface: var(--success-surface);
+}
+
+.red {
+	--text: var(--error-text);
+	--control: var(--error-control);
+	--surface: var(--error-surface);
+}

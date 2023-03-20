@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text;
 using Fluxor;
 using Types.Dtos;
 using WebClient.Store.User;
@@ -33,7 +34,10 @@ public class ApiClient: HttpClient
             SignOut();
             throw new UnauthorizedAccessException();
         }
-        HttpResponseMessage response = await PostAsync("api/auth/refresh", new StringContent(_userState.Value.Tokens!.Refresh.Token));
+        HttpResponseMessage response = await PostAsync(
+            "api/auth/refresh",
+            new StringContent($"\"{_userState.Value.Tokens!.Refresh.Token}\"", Encoding.UTF8, "application/json")
+        );
         if (!response.IsSuccessStatusCode)
         {
             SignOut();
@@ -43,7 +47,7 @@ public class ApiClient: HttpClient
         _dispatcher.Dispatch(new SetTokensAction(tokens));
     }
 
-    public override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    public async Task<HttpResponseMessage> SendApiAsync(HttpRequestMessage request)
     {
         if (request is ApiMessage apiRequest)
         {
@@ -51,11 +55,11 @@ public class ApiClient: HttpClient
             {
                 await TryRefresh();
             }
-            else
+            if (_userState.Value.Tokens != null)
             {
                 request.Headers.Add("Authorization", $"Bearer {_userState.Value.Tokens!.Access.Token}");
             }
         }
-        return await base.SendAsync(request, cancellationToken);
+        return await SendAsync(request);
     }
 }

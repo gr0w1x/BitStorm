@@ -1,0 +1,14 @@
+@using WebClient.Views.Components
+@using WebClient.Store.Theme
+@using BlazorMonaco
+@using BlazorMonaco.Editor
+
+@inherits ReduxComponent<ThemeState>
+
+<div class="editor">
+    <StandaloneCodeEditor
+        @ref="_editor"
+        @attributes="@AdditionalAttributes"
+        ConstructionOptions="EditorConstructionOptions"
+        OnDidChangeModelContent="OnValueChanged" />
+</div>

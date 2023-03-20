@@ -1,8 +1,7 @@
 using Fluxor;
 using WebClient.Store.Common;
-using WebClient.Store.Pages.SignUpPage;
 
-namespace WebClient.Store.Pages.SignPageUp;
+namespace WebClient.Store.Pages.SignUpPage;
 
 public static class SignUpPageReducers
 {

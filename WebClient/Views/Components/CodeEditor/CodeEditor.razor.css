@@ -1,0 +1,9 @@
+.editor,
+::deep .monaco-editor-container {
+    height: 100%;
+}
+
+.editor {
+    border-radius: 5px;
+    overflow: hidden;
+}

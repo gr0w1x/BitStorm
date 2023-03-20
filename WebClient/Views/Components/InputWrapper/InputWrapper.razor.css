@@ -4,3 +4,7 @@
     align-items: stretch;
     gap: 5px;
 }
+
+::deep .caption {
+    flex-basis: min-content;
+}

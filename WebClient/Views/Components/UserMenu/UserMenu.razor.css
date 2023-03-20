@@ -1,0 +1,25 @@
+.user-menu {
+    display: flex;
+    align-items: stretch;
+    flex-direction: row;
+    background-color: var(--background-alt);
+    width: fit-content;
+    align-items: stretch;
+}
+
+.icon {
+    font-size: 25px;
+    width: 25px;
+}
+
+ul {
+    background-color: var(--background-alt);
+}
+
+.dropdown-divider {
+    border-top-color: var(--text);
+}
+
+::deep .dropdown-item {
+    color: var(--text) !important;
+}

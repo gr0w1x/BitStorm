@@ -1,0 +1,23 @@
+.form {
+    display: flex;
+    gap: 15px;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-content: normal;
+    align-items: stretch;
+}
+
+::deep h1 {
+    text-align: center;
+}
+
+::deep hr {
+    width: 80%;
+    border: none;
+    border-top: var(--control) solid 2px;
+}
+
+::deep input {
+    width: 100%;
+}

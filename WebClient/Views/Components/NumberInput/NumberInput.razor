@@ -1,0 +1,27 @@
+@using Microsoft.AspNetCore.Components.Forms
+@inherits InputNumber<T>
+@inject IJSRuntime JSRuntime
+
+@typeparam T
+
+<div class="number input-like">
+    <input @attributes="AdditionalAttributes"
+        type="number"
+        class="@CssClass" 
+        @bind="CurrentValueAsString" 
+        @bind:event="onchange" />
+	<button
+        disabled="@(AdditionalAttributes?.GetValueOrDefault("disabled", false))"
+        class="number-minus filled"
+        type="button"
+        onclick="this.parentElement.firstElementChild.stepDown(); this.parentElement.firstElementChild.dispatchEvent(new Event(@("\"change\"")));">
+        -
+    </button>
+    <button
+        disabled="@(AdditionalAttributes?.GetValueOrDefault("disabled", false))"
+        class="number-plus filled"
+        type="button"
+        onclick="this.parentElement.firstElementChild.stepUp(); this.parentElement.firstElementChild.dispatchEvent(new Event(@("\"change\"")));">
+        +
+    </button>
+</div>

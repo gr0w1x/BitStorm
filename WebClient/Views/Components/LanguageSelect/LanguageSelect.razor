@@ -1,0 +1,20 @@
+@using WebClient.Views.Components.SelectInput
+
+<div class="language-select">
+    <SelectInput
+        Value="@SelectedLanguageVersion.Language"
+        ValueExpression="@(() => SelectedLanguageVersion.Language)"
+        ValueChanged="@OnLanguageChanged"
+        TItem="@string"
+        RenderItem="@((item, _) => builder => { builder.AddContent(0, LanguagesDictionary[item].Name); })"
+        Items="@LanguageCodes" />
+    @if (UseVersion)
+    {
+        <SelectInput
+            Value="@SelectedLanguageVersion.Version"
+            ValueExpression="@(() => SelectedLanguageVersion.Version)"
+            ValueChanged="@OnVersionChanged"
+            TItem="@string"
+            Items="@Versions" />
+    }
+</div>

@@ -4,36 +4,33 @@ using Types.Dtos;
 
 namespace WebClient.Services;
 
-public class AuthService
+public class AuthService: BaseApiService
 {
-    private readonly ApiClient _client;
+    public AuthService(ApiClient apiClient): base(apiClient) {}
 
-    public AuthService(ApiClient apiClient)
+    public async Task<AccessRefreshTokensDto> SignIn(SignInDto dto) =>
+        (await TrySendAndRecieve<AccessRefreshTokensDto>(new ApiMessage()
+        {
+            RequestUri = new Uri("/api/auth/sign-in", UriKind.RelativeOrAbsolute),
+            Method = HttpMethod.Post,
+            Content = new StringContent(JsonSerializer.Serialize(dto), Encoding.UTF8, "application/json")
+        }))!;
+
+    public async Task SignUp(SignUpDto dto)
     {
-        _client = apiClient;
+        await _client.SendApiAsync(new ApiMessage()
+        {
+            RequestUri = new Uri("/api/auth/sign-up", UriKind.RelativeOrAbsolute),
+            Method = HttpMethod.Post,
+            Content = new StringContent(JsonSerializer.Serialize(dto), Encoding.UTF8, "application/json")
+        });
     }
 
-    public Task<HttpResponseMessage> SignIn(SignInDto dto) =>
-        _client.SendAsync(new ApiMessage()
+    public async Task<AccessRefreshTokensDto> Confirm(ConfirmDto dto) =>
+        (await TrySendAndRecieve<AccessRefreshTokensDto>(new ApiMessage()
         {
-            RequestUri = new Uri("/api/users/auth/sign-in", UriKind.RelativeOrAbsolute),
+            RequestUri = new Uri("/api/auth/confirm", UriKind.RelativeOrAbsolute),
             Method = HttpMethod.Post,
             Content = new StringContent(JsonSerializer.Serialize(dto), Encoding.UTF8, "application/json")
-        });
-
-    public Task<HttpResponseMessage> SignUp(SignUpDto dto) =>
-        _client.SendAsync(new ApiMessage()
-        {
-            RequestUri = new Uri("/api/users/auth/sign-up", UriKind.RelativeOrAbsolute),
-            Method = HttpMethod.Post,
-            Content = new StringContent(JsonSerializer.Serialize(dto), Encoding.UTF8, "application/json")
-        });
-
-    public Task<HttpResponseMessage> Confirm(ConfirmDto dto) =>
-        _client.SendAsync(new ApiMessage()
-        {
-            RequestUri = new Uri("/api/users/auth/confirm", UriKind.RelativeOrAbsolute),
-            Method = HttpMethod.Post,
-            Content = new StringContent(JsonSerializer.Serialize(dto), Encoding.UTF8, "application/json")
-        });
+        }))!;
 }

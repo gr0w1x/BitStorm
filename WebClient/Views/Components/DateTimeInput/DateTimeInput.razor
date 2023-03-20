@@ -1,0 +1,37 @@
+@using Microsoft.AspNetCore.Components.Forms
+@inherits InputDate<DateTime>
+@using System
+@using System.Globalization
+
+<input @attributes="AdditionalAttributes" 
+    class="@CssClass"
+    type="datetime-local"
+    @bind="@CurrentValue" />
+
+@code {
+    private DateTime _date;
+    private async Task OnDateChanged(ChangeEventArgs args)
+    {
+        if (DateTime.TryParse(args.Value.ToString(), out _date))
+        {
+            await ValueChanged.InvokeAsync(ToDate);
+        }
+    }
+
+    private TimeSpan _time;
+    private async Task OnTimeChanged(ChangeEventArgs args)
+    {
+        if (TimeSpan.TryParse(args.Value.ToString(), out _time))
+        {
+            await ValueChanged.InvokeAsync(ToDate);
+        }
+    }
+
+    private DateTime ToDate => _date + _time;
+
+    protected override void OnInitialized()
+    {
+        _date = Value.Date;
+        _time = Value.TimeOfDay;
+    }
+}
