@@ -23,6 +23,7 @@ builder.Services.AddJwtAuth(builder.Configuration.GetJwtOptions());
 // Data layer
 builder.Services.AddScoped<IUnitOfWork, DbContextUnitOfWork<TasksContext>>();
 builder.Services.AddScoped<ITasksRepository, TasksRepository>();
+builder.Services.AddScoped<ITagsRepository, TagsRepository>();
 
 // Service layer
 builder.Services.AddScoped<TasksService>();

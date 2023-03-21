@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Types.Entities;
 
@@ -21,9 +22,14 @@ public interface ITask: IHasId
     int Level { get; set; }
     bool Beta { get; set; }
 
-    string[] Tags { get; set; }
+    List<TaskTag> Tags { get; set; }
 
     TaskVisibility Visibility { get; set; }
+}
+
+public interface ITaskTag: IHasId<string>
+{
+    List<Task_> Tasks { get; set; }
 }
 
 public interface ITaskImplementation
@@ -63,6 +69,7 @@ public record Task_: ITask, ICreated, IUpdated
     [Required]
     public Guid AuthorId { get; set; }
 
+    [JsonIgnore]
     public List<UserIdRecord> Likes { get; set; }
 
     [Required]
@@ -79,10 +86,19 @@ public record Task_: ITask, ICreated, IUpdated
     [Required]
     public bool Beta { get; set; }
 
-    public string[] Tags { get; set; } = Array.Empty<string>();
+    public List<TaskTag> Tags { get; set; } = new List<TaskTag>();
 
     public TaskVisibility Visibility { get; set; } = TaskVisibility.Private;
 
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
+}
+
+public record TaskTag: ITaskTag
+{
+    [Key]
+    public string Id { get; set; }
+
+    [JsonIgnore]
+    public List<Task_> Tasks { get; set; } = new List<Task_>();
 }

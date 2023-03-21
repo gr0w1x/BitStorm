@@ -58,7 +58,10 @@ public class TasksService
             Description = dto.Description,
             Level = dto.SuggestedLevel,
             Beta = true,
-            Tags = dto.Tags,
+            Tags = dto.Tags.Select(tag => new TaskTag()
+            {
+                Id = tag,
+            }).ToList(),
             Likes = new List<UserIdRecord>(),
             Visibility = dto.Visibility
         };
