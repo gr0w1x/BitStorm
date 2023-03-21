@@ -25,7 +25,8 @@ RUN apt-get update -yq \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs
 
-RUN npm install -g mocha chai --omit=dev
-RUN cd /app/node && npm install
+RUN npm install -g mocha chai
+RUN cd /app/node && npm install --omit=dev
 
 ENTRYPOINT ["dotnet", "JavaScript_Node_v18_15_0.dll"]
+
