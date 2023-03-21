@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Components.Forms;
 
 namespace WebClient.Views.Components.SelectInput;
 
+public record SelectItem<TItem> (TItem? Item, bool Selected);
+
 public partial class SelectInput<TItem>: InputSelect<TItem>
     where TItem: IComparable
 {
@@ -10,32 +12,10 @@ public partial class SelectInput<TItem>: InputSelect<TItem>
     public IEnumerable<TItem> Items { get; set; }
 
     [Parameter]
-    public Func<TItem, bool, RenderFragment> RenderItem { get; set; } =
-        (item, _) => (
-            builder => builder.AddContent(0, item.ToString())
-        );
+    public RenderFragment<SelectItem<TItem>> RenderItem { get; set; }
 
-    private Func<TItem?, RenderFragment>? _renderSelected;
     [Parameter]
-    public Func<TItem?, RenderFragment> RenderSelected
-    {
-        get
-        {
-            _renderSelected ??= (item) =>
-                {
-                    if (item != null)
-                    {
-                        return RenderItem(item, true);
-                    }
-                    else
-                    {
-                        return _ => { };
-                    }
-                };
-            return _renderSelected;
-        }
-        set => _renderSelected = value;
-    }
+    public RenderFragment<SelectItem<TItem>> RenderSelected { get; set; }
 
     [Parameter]
     public EventCallback<TItem> OnChange { get; set; }

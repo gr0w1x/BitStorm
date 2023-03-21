@@ -7,14 +7,14 @@
 
 <div class="btn-group">
     <button type="button" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-        @RenderSelected(Value)
+        @((RenderSelected ?? RenderItem)(new SelectItem<TItem>(Value, false)))
     </button>
     <ul class="dropdown-menu">
         @foreach (var item in Items)
         {
             <li>
                 <SectionButton @onclick="(() => OnSelect(item))" class="dropdown-item" type="button">
-                    @RenderItem(item, item.CompareTo(Value) == 0)
+                    @RenderItem(new SelectItem<TItem>(item, item.CompareTo(Value) == 0))
                 </SectionButton>
             </li>
         }

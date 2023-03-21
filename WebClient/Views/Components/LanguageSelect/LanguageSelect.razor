@@ -6,8 +6,18 @@
         ValueExpression="@(() => SelectedLanguageVersion.Language)"
         ValueChanged="@OnLanguageChanged"
         TItem="@string"
-        RenderItem="@((item, _) => builder => { builder.AddContent(0, LanguagesDictionary[item].Name); })"
-        Items="@LanguageCodes" />
+        Items="@LanguageCodes">    
+        <RenderItem Context="language">
+            @if (language.Item != null)
+            {
+                @LanguagesDictionary[@language.Item].Name
+            }
+            else
+            {
+                <span>Select Language</span>
+            }
+        </RenderItem>
+    </SelectInput>
     @if (UseVersion)
     {
         <SelectInput
@@ -15,6 +25,10 @@
             ValueExpression="@(() => SelectedLanguageVersion.Version)"
             ValueChanged="@OnVersionChanged"
             TItem="@string"
-            Items="@Versions" />
+            Items="@Versions">
+            <RenderItem Context="version">
+                @version.Item
+            </RenderItem>
+        </SelectInput>
     }
 </div>
