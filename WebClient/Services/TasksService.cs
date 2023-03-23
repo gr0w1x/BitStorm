@@ -14,6 +14,7 @@ public class TasksService: BaseApiService
         {
             RequestUri = new Uri($"/api/public/tasks/{taskId}", UriKind.RelativeOrAbsolute),
             Method = HttpMethod.Get,
+            OptionalAuthorization = true,
         });
 
     public async Task<Task_> CreateTask(CreateTaskDto dto) =>

@@ -83,13 +83,13 @@ body,
     --control: #555;
     --surface: #ccc;
 
-    --success-text: #58EA6F;
-    --success-control: #37AB4A;
-    --success-surface: #0e3a15;
+    --success-text: #219333;
+    --success-control: #287f37;
+    --success-surface: #84cb8f;
 
-    --error-text: #E95679;
-    --error-control: #AB374C;
-    --error-surface: #44131b;
+    --error-text: #dd375e;
+    --error-control: #792534;
+    --error-surface: #e06579;
 }
 
 h1,
@@ -223,4 +223,13 @@ button.filled:focus {
 }
 button.caption {
     letter-spacing: normal;
+}
+
+.center-grid {
+    display: grid;
+    align-items: center;
+    align-content: center;
+    justify-items: center;
+    justify-content: center;
+    height: 100%;
 }

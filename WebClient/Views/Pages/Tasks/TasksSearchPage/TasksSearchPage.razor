@@ -1,0 +1,105 @@
+@page "/tasks/search"
+
+@using WebClient.Views.Components.InfiniteLoaderList
+@using WebClient.Views.Components.SelectInput
+@using WebClient.Views.Components.MultiSelectInput
+@using WebClient.Views.Components.Rank
+@using WebClient.Views.Components.OneLineInput
+@using WebClient.Views.Components.LanguageSelect
+@using WebClient.Views.Components.CircleSpinner
+@using WebClient.Views.Components.InputWrapper
+@using WebClient.Views.Components.TaskCard
+
+@using WebClient.Models
+@using Types.Dtos
+
+<div class="layout">
+    <div class="form">
+        <InputWrapper For="@(() => _dto.Query)" Title="Query" WithValidation="false">
+            <OneLineInput
+            @bind-Value="@_dto.Query" />
+        </InputWrapper>
+
+        <InputWrapper For="@(() => CurrentLanguage)" Title="Language" WithValidation="false">
+            <SelectInput
+                TItem="@LanguageDto"
+                Items="@_languageItems.Values"
+                Value="@CurrentLanguage"
+                ValueExpression="@(() => CurrentLanguage)"
+                ValueChanged="@((value) => _dto.Languages = new string[] { value.Code })">
+                <RenderItem Context="language">
+                    @language.Item?.Name
+                </RenderItem>    
+            </SelectInput>
+        </InputWrapper>
+
+        <InputWrapper For="@(() => _dto.Status)" Title="Status" WithValidation="false">
+            <SelectInput
+                TItem="@GetTasksInfoDto.StatusOptions"
+                Items="@_statusOptionsItems"
+                @bind-Value="@_dto.Status">
+                <RenderItem Context="status">
+                    @switch (status.Item)
+                    {
+                        case GetTasksInfoDto.StatusOptions.OnlyBeta:
+                        {
+                            <span>Beta</span>
+                            break;
+                        }
+                        case GetTasksInfoDto.StatusOptions.OnlyApproved:
+                        {
+                            <span>Approved</span>
+                            break;
+                        }
+                        case GetTasksInfoDto.StatusOptions.All:
+                        {
+                            <span>Approved & Beta</span>
+                            break;
+                        }
+                    }
+                </RenderItem>
+            </SelectInput>
+        </InputWrapper>
+
+        <InputWrapper For="@(() => _dto.Levels)" Title="Ranks" WithValidation="false">
+            <MultiSelectInput
+                TItem="int"
+                Items="@_rankItems"
+                Values="@_dto.Levels"
+                ValuesChanged="@(values => _dto.Levels = values.OrderBy(id => id).ToArray())">
+                <RenderMark Context="item">
+                    <span>@item.Item rank</span>
+                </RenderMark>
+                <RenderItem Context="item">
+                    <Rank Value="@item.Item" />
+                </RenderItem>
+                <RenderSelect>Select Ranks ...</RenderSelect>
+            </MultiSelectInput>
+        </InputWrapper>
+
+        <InputWrapper For="@(() => _dto.Tags)" Title="Tags" WithValidation="false">
+            <MultiSelectInput
+                TItem="@string"
+                Items="@_tagItems"
+                Values="@_dto.Tags"
+                ValuesChanged="@(values => _dto.Tags = values.ToArray())">
+                <RenderSelect>Select Tags ...</RenderSelect>
+            </MultiSelectInput>
+        </InputWrapper>
+    </div>
+
+    <div class="tasks">
+        <InfiniteLoaderList T="TaskCardModel" LoadMore="GetItems">
+            <ItemTemplate Context="item">
+                <div class="card">
+                    <TaskCard Model="@item" />
+                </div>
+            </ItemTemplate>
+            <LoadingTemplate>
+                <div class="center-grid">
+                    <CircleSpinner />
+                </div>
+            </LoadingTemplate>
+        </InfiniteLoaderList>
+    </div>
+</div>

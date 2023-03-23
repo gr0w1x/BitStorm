@@ -5,6 +5,7 @@ using WebClient.Services;
 using WebClient.Store.Common;
 using WebClient.Store.Pages.TaskPage;
 using WebClient.Typing;
+using WebClient.Views.Components;
 
 namespace WebClient.Views.Pages.Tasks.TaskPage;
 
@@ -12,6 +13,8 @@ public partial class TaskPage
 {
     [Parameter]
     public string? TaskId { get; set; }
+
+    protected override PageAccessType PageAccess => PageAccessType.ForAll;
 
     [Inject]
     public TasksService TasksService { get; set; }

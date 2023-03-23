@@ -37,9 +37,32 @@ ul {
     display: none;
 }
 
-.select-button {
+.cancel {
+    padding: 0 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.marks {
+    display: flex;
+    gap: 5px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.mark {
+    padding: 2px 10px;
+    border-radius: 5px;
+    border: 2px solid var(--control);
+    background-color: transparent;
+}
+
+.select-button,
+.mark {
     display: flex;
     flex-direction: row;
+    flex-wrap: nowrap;
     gap: 5px;
     align-items: center;
 }

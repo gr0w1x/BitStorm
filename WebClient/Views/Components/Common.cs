@@ -59,9 +59,10 @@ public class UxStateComponent<TState>: ReduxComponent<TState>
 [Flags]
 public enum PageAccessType
 {
-    Inaccessible = 0,
-    OnlyPublic       = 1 << 0,
-    OnlyPrivate      = 1 << 1
+    Inaccessible  = 0,
+    OnlyPublic    = 1 << 0,
+    OnlyPrivate   = 1 << 1,
+    ForAll        = OnlyPublic | OnlyPrivate
 }
 
 public class PageComponent<TState>: UxStateComponent<TState>

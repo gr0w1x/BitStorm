@@ -14,7 +14,9 @@
     {
         @if (ComponentState.Value.Task == null)
         {
-            <ResultStatus Icon="fa-solid fa-5x fa-circle-question" Title="No task found" />
+            <div class="center-grid">
+                <ResultStatus Icon="fa-solid fa-5x fa-circle-question" Title="No task found" />
+            </div>
         }
         else
         {
@@ -30,14 +32,18 @@
     }
     case UxState.Error:
     {
-        <ResultStatus Icon="fa-solid fa-5x fa-circle-exclamation" Title="Ooops!">
-            @ComponentState.Value.ServerError <br>
-        </ResultStatus>
+        <div class="center-grid">
+            <ResultStatus Icon="fa-solid fa-5x fa-circle-exclamation" Title="Ooops!">
+                @ComponentState.Value.ServerError <br>
+            </ResultStatus>
+        </div>
         break;
     }
     case UxState.Loading:
     {
-        <CircleSpinner />
+        <div class="center-grid">
+            <CircleSpinner />
+        </div>
         break;
     }
 }

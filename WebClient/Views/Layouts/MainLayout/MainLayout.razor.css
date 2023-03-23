@@ -11,6 +11,12 @@
 }
 
 .main {
-    padding: 50px 25px 25px 95px;
+    padding: 65px 25px 25px 25px;
     overflow: auto;
+}
+
+@media screen and (min-width: 800px) {
+    .main {
+        padding-left: 95px;
+    }
 }

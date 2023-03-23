@@ -1,0 +1,69 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using WebClient.Views.Components.SectionButton
+
+@typeparam TItem
+
+<div>
+    <button
+        disabled="@Disabled"
+        type="button"
+        class="dropdown-toggle select-button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+        data-bs-auto-close="outside">
+        <span class="content">
+            @RenderSelect
+        </span>
+        @if (Values.Any())
+        {
+            <button
+                disabled="@Disabled"
+                type="button"
+                class="cancel"
+                @onclick="@Clear"
+                @onclick:stopPropagation="true"
+                @onclick:preventDefault="true">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        }
+    </button>
+    <ul class="dropdown-menu">
+        @foreach (var item in Items)
+        {
+            {
+                bool selected = Values.Contains(item);
+
+                <li>
+                    <SectionButton
+                        disabled="@Disabled"
+                        @onclick="(() => OnSelect(item))"
+                        class="dropdown-item"
+                        type="button">
+                        @if (selected)
+                        {
+                            <i class="fa-solid fa-check" />
+                        }
+                        @RenderItem(new SelectItem<TItem>(item, selected))
+                    </SectionButton>
+                </li>
+            }
+        }
+    </ul>
+    <div class="marks">
+        @foreach (var item in Values)
+        {
+            <span class="mark">
+                @((RenderMark ?? RenderItem)(new SelectItem<TItem>(item, false)))
+                <button
+                    disabled="@Disabled"
+                    type="button"
+                    class="cancel"
+                    @onclick="@(() => Remove(item))"
+                    @onclick:stopPropagation="true"
+                    @onclick:preventDefault="true">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </span>
+        }
+    </div>
+</div>

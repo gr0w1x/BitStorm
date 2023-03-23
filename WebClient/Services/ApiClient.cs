@@ -8,6 +8,9 @@ namespace WebClient.Services;
 
 public class ApiMessage: HttpRequestMessage
 {
+    // If user signed in, ApiClient refreshs tokens when needed. No authorization required
+    public bool OptionalAuthorization { get; set; }
+    // Authorization required
     public bool NeedAuthorization { get; set; }
 }
 
@@ -51,11 +54,14 @@ public class ApiClient: HttpClient
     {
         if (request is ApiMessage apiRequest)
         {
-            if (apiRequest.NeedAuthorization && !_userState.Value.HasAccess)
+            if (
+                (apiRequest.NeedAuthorization && !_userState.Value.HasAccess) ||
+                (apiRequest.OptionalAuthorization && _userState.Value?.Tokens != null && !_userState.Value.HasAccess)
+            )
             {
                 await TryRefresh();
             }
-            if (_userState.Value.Tokens != null)
+            if (_userState.Value?.Tokens != null)
             {
                 request.Headers.Add("Authorization", $"Bearer {_userState.Value.Tokens!.Access.Token}");
             }

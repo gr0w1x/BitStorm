@@ -15,9 +15,6 @@ public partial class LanguageSelect
     public EventCallback<SelectedLanguageVersion> SelectedLanguageVersionChanged { get; set; }
 
     [Parameter]
-    public EventCallback OnChanged { get; set; }
-
-    [Parameter]
     public bool UseVersion { get; set; } = true;
 
     protected IEnumerable<string> LanguageCodes => LanguagesDictionary.Keys;

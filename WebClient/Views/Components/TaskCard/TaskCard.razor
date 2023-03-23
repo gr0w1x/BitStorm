@@ -14,7 +14,6 @@
         <span class="label">
             <i class="fa-regular fa-star" />
             @Model.TaskDto.Likes
-            likes
         </span>
         <span class="label">
             <i class="fa-solid fa-user"></i>
@@ -34,13 +33,16 @@
             }
         </span>
     </div>
-    <div class="tags caption">
-        <i class="fa-solid fa-tag"></i>
-        @foreach (var tag in Model.TaskDto.Task.Tags)
-        {
-            <span class="tag">@tag.Id</span>
-        }
-    </div>
+    @if (Model.TaskDto.Task.Tags.Any())
+    {
+        <div class="tags caption">
+            <i class="fa-solid fa-tag"></i>
+            @foreach (var tag in Model.TaskDto.Task.Tags)
+            {
+                <span class="tag">@tag.Id</span>
+            }
+        </div>
+    }
 </div>
 
 @code {
