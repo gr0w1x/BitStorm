@@ -25,6 +25,8 @@ public interface ITask: IHasId
     List<TaskTag> Tags { get; set; }
 
     TaskVisibility Visibility { get; set; }
+
+    ICollection<TaskImplementation> Implementations { get; set; }
 }
 
 public interface ITaskTag: IHasId<string>
@@ -35,7 +37,8 @@ public interface ITaskTag: IHasId<string>
 public interface ITaskImplementation
 {
     Guid TaskId { get; }
-    string LanguageVersionId { get; }
+    string Language { get; }
+    string Version { get; }
 
     string InitialSolution { get; set; }
     string CompleteSolution { get; set; }
@@ -92,6 +95,8 @@ public record Task_: ITask, ICreated, IUpdated
 
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
+
+    public ICollection<TaskImplementation> Implementations { get; set; }
 }
 
 public record TaskTag: ITaskTag
@@ -101,4 +106,22 @@ public record TaskTag: ITaskTag
 
     [JsonIgnore]
     public List<Task_> Tasks { get; set; } = new List<Task_>();
+}
+
+public record TaskImplementation: ITaskImplementation
+{
+    public Guid TaskId { get; }
+    public string Language { get; set; }
+    public string Version { get; set; }
+
+    [Required]
+    public string InitialSolution { get; set; }
+    [Required]
+    public string CompleteSolution { get; set; }
+    [Required]
+    public string PreloadedCode { get; set; }
+    [Required]
+    public string ExampleTests { get; set; }
+    [Required]
+    public string Tests { get; set; }
 }

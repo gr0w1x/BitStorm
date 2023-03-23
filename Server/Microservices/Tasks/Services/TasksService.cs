@@ -26,8 +26,8 @@ public class TasksService
                 task.Visibility == TaskVisibility.Public ||
                 (
                     task.Visibility == TaskVisibility.Private && jwt != null && (
-                        task.AuthorId == jwt.UserId ||
-                        jwt.Roles == UserRoles.Admin
+                        (task.AuthorId == jwt.UserId) ||
+                        ((jwt.Roles & UserRoles.Admin) != UserRoles.None)
                     )
                 )
             )
@@ -41,6 +41,9 @@ public class TasksService
         }
         return Results.NotFound(new ErrorDto("no task found", HttpStatusCode.NotFound));
     }
+
+    public async Task<IResult> GetTasksInfo(GetTasksInfoDto dto)
+        => Results.Ok(await _tasksRepository.GetTasksInfo(dto));
 
     public async Task<IResult> CreateTask(CreateTaskDto dto, AccessJwtTokenContent jwt)
     {

@@ -1,6 +1,6 @@
 using CommonServer.Asp.Filters;
 using CommonServer.Utils.Extensions;
-using Gateway.Services;
+using CommonServer.Asp.AuthorizationHandlers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tasks.Services;
@@ -24,7 +24,12 @@ public class TasksController: Controller
     public Task<IResult> GetTask(Guid id) =>
         _tasksService.GetTask(id, HttpContext.GetJwt());
 
-    [Authorize]
+    [AllowAnonymous]
+    [HttpGet("public/info")]
+    public Task<IResult> GetTasksInfo(GetTasksInfoDto dto) =>
+        _tasksService.GetTasksInfo(dto);
+
+    [Authorize(AuthenticationSchemes = OptionalJwtBearerHandler.SchemeName)]
     [HttpPost("create")]
     [ValidationFilter]
     public Task<IResult> CreateTask([FromBody] CreateTaskDto dto) =>

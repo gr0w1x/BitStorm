@@ -9,6 +9,47 @@ public record TaskDto
     public int Likes  { get; set; }
 }
 
+public record TasksInfoDto
+{
+    public int Total { get; set; }
+    public Dictionary<string, int> Tags { get; set; }
+}
+
+public record GetTasksInfoDto
+{
+    public string? Query { get; set; }
+    public StatusOptions Status { get; set; } = StatusOptions.All;
+    public string[]? Languages { get; set; }
+    public int[]? Levels { get; set; }
+    public string[]? Tags { get; set; }
+
+    [Flags]
+    public enum StatusOptions
+    {
+        None         = 0,
+        OnlyBeta     = 1 << 0,
+        OnlyApproved = 1 << 1,
+        All          = OnlyBeta | OnlyApproved
+    }
+}
+
+public record GetTasksDto: GetTasksInfoDto
+{
+    public SortStrategy? Sort { get; set; }
+    [Required]
+    public int Skip { get; set; }
+    [Required]
+    public int Take { get; set; }
+
+    public enum SortStrategy
+    {
+        LastUpdated,
+        Likes,
+        Level,
+        Name
+    }
+}
+
 public record CreateTaskDto
 {
     [Required]
