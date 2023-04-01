@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExecutorTemplate", "Server\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavaScript_Node_v18_15_0", "Server\Executors\JavaScript\JavaScript_Node_v18_15_0\JavaScript_Node_v18_15_0.csproj", "{2D883918-EB97-48BB-84E8-2C2FEC280D45}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Executions", "Server\Microservices\Executions\Executions.csproj", "{38B2D642-DCEB-4CE8-905A-C5E70290F0C1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,5 +68,9 @@ Global
 		{2D883918-EB97-48BB-84E8-2C2FEC280D45}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D883918-EB97-48BB-84E8-2C2FEC280D45}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D883918-EB97-48BB-84E8-2C2FEC280D45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38B2D642-DCEB-4CE8-905A-C5E70290F0C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38B2D642-DCEB-4CE8-905A-C5E70290F0C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38B2D642-DCEB-4CE8-905A-C5E70290F0C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38B2D642-DCEB-4CE8-905A-C5E70290F0C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

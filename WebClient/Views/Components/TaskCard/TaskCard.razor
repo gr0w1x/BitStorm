@@ -6,14 +6,14 @@
 <div class="task-card">
     <h3 class="title">
         <span class="caption">
-            <Rank Value="@Model.TaskDto.Task.Level" />
+            <Rank Value="@Model.Task.Level" />
         </span>
-        @Model.TaskDto.Task.Title
+        @Model.Task.Title
     </h3>
     <div class="labels">
         <span class="label">
             <i class="fa-regular fa-star" />
-            @Model.TaskDto.Likes
+            @Model.Task.Likes
         </span>
         <span class="label">
             <i class="fa-solid fa-user"></i>
@@ -33,11 +33,11 @@
             }
         </span>
     </div>
-    @if (Model.TaskDto.Task.Tags.Any())
+    @if (Model.Task.Tags.Any())
     {
         <div class="tags caption">
             <i class="fa-solid fa-tag"></i>
-            @foreach (var tag in Model.TaskDto.Task.Tags)
+            @foreach (var tag in Model.Task.Tags)
             {
                 <span class="tag">@tag.Id</span>
             }
@@ -64,7 +64,7 @@
     {
         try
         {
-            Model.Author = await UsersService.GetUser(Model.TaskDto.Task.AuthorId);
+            Model.Author = await UsersService.GetUser(Model.Task.AuthorId);
             StateHasChanged();
         }
         catch { }

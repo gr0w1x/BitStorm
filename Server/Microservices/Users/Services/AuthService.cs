@@ -56,7 +56,6 @@ public class AuthService
         }
 
         // TODO: add banned check
-        // TODO: add deleted check
 
         return (true, Results.Ok());
     }

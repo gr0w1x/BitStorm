@@ -33,11 +33,7 @@ public class TasksService
             )
         )
         {
-            return Results.Ok(new TaskDto()
-            {
-                Task = task,
-                Likes = task.Likes.Count,
-            });
+            return Results.Ok(task);
         }
         return Results.NotFound(new ErrorDto("no task found", HttpStatusCode.NotFound));
     }
@@ -65,17 +61,13 @@ public class TasksService
             {
                 Id = tag,
             }).ToList(),
-            Likes = new List<UserIdRecord>(),
+            Likes = 0,
             Visibility = dto.Visibility
         };
 
         await _tasksRepository.Create(task);
         await _work.Save();
 
-        return Results.Ok(new TaskDto()
-        {
-            Task = task,
-            Likes = task.Likes.Count,
-        });
+        return Results.Ok(task);
     }
 }

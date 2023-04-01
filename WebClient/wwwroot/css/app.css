@@ -147,6 +147,9 @@ img.no-select {
 .error {
     color: var(--error-text);
 }
+.success {
+    color: var(--success-text);
+}
 
 *,
 *::before,

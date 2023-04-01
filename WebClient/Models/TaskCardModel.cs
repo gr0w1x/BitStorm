@@ -5,6 +5,6 @@ namespace WebClient.Models;
 
 public record TaskCardModel
 {
-    public TaskDto TaskDto { get; set; }
+    public Task_ Task { get; set; }
     public IUser? Author { get; set; }
 }

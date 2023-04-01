@@ -9,8 +9,8 @@ public class TasksService: BaseApiService
 {
     public TasksService(ApiClient apiClient): base(apiClient) { }
 
-    public async Task<TaskDto?> GetTask(Guid taskId) =>
-        await TrySendAndRecieve<TaskDto>(new ApiMessage()
+    public async Task<Task_?> GetTask(Guid taskId) =>
+        await TrySendAndRecieve<Task_>(new ApiMessage()
         {
             RequestUri = new Uri($"/api/public/tasks/{taskId}", UriKind.RelativeOrAbsolute),
             Method = HttpMethod.Get,

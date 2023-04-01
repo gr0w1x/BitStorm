@@ -3,6 +3,14 @@ using Types.Entities;
 
 namespace Types.Dtos;
 
+public record SignInDto()
+{
+    [Required(ErrorMessage = "email required")]
+    public string EmailOrUsername { get; set; }
+    [Required(ErrorMessage = "password required")]
+    public string Password { get; set; }
+}
+
 public record SignUpDto()
 {
     [EmailAddress(ErrorMessage = "not valid email")]
@@ -21,3 +29,5 @@ public record SignUpDto()
     [MaxLength(UserConstants.PasswordLengthMax, ErrorMessage = "too long password (256 max)")]
     public string Password { get; set; }
 }
+
+public record ConfirmDto(Guid code);

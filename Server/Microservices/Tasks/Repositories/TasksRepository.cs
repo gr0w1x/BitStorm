@@ -33,20 +33,17 @@ public class TasksRepository:
             query = query
                 .Where(task => dto.Levels.Contains(task.Level));
         }
-        if (dto.StatusOptions != null)
+        switch (dto.Status)
         {
-            switch (dto.StatusOptions)
+            case GetTasksInfoDto.StatusOptions.OnlyBeta:
             {
-                case GetTasksInfoDto.StatusOptions.OnlyBeta:
-                {
-                    query = query.Where(task => task.Beta);
-                    break;
-                }
-                case GetTasksInfoDto.StatusOptions.OnlyApproved:
-                {
-                    query = query.Where(task => !task.Beta);
-                    break;
-                }
+                query = query.Where(task => task.Beta);
+                break;
+            }
+            case GetTasksInfoDto.StatusOptions.OnlyApproved:
+            {
+                query = query.Where(task => !task.Beta);
+                break;
             }
         }
         if (dto.Query != null)

@@ -10,6 +10,36 @@
     gap: 10px;
 }
 
+.details {
+    overflow: auto;
+}
+
+.output-details {
+    overflow: auto;
+}
+.output-details pre {
+    overflow: initial;
+}
+
+.output-marks {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.output-loading {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+::deep .output {
+    background-color: var(--surface);
+    border-radius: 5px;
+    padding: 15px 25px;
+}
+
 @media screen and (max-width: 800px) {
     .edit-implementations-layout {
         display: flex;

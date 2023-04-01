@@ -45,8 +45,14 @@ namespace Tasks.Migrations
                     b.Property<string>("Version")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<string>("CompleteSolution")
+                    b.Property<string>("CompletedSolution")
                         .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Details")
                         .HasColumnType("longtext");
 
                     b.Property<string>("ExampleTests")
@@ -58,7 +64,6 @@ namespace Tasks.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("PreloadedCode")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<Guid?>("Task_Id")
@@ -67,6 +72,9 @@ namespace Tasks.Migrations
                     b.Property<string>("Tests")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("TaskId", "Language", "Version");
 
@@ -107,6 +115,9 @@ namespace Tasks.Migrations
                     b.Property<int>("Level")
                         .HasColumnType("int");
 
+                    b.Property<int>("Likes")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -129,12 +140,7 @@ namespace Tasks.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("Task_Id")
-                        .HasColumnType("char(36)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("Task_Id");
 
                     b.ToTable("UserIdRecords");
                 });
@@ -161,18 +167,9 @@ namespace Tasks.Migrations
                         .HasForeignKey("Task_Id");
                 });
 
-            modelBuilder.Entity("Types.Entities.UserIdRecord", b =>
-                {
-                    b.HasOne("Types.Entities.Task_", null)
-                        .WithMany("Likes")
-                        .HasForeignKey("Task_Id");
-                });
-
             modelBuilder.Entity("Types.Entities.Task_", b =>
                 {
                     b.Navigation("Implementations");
-
-                    b.Navigation("Likes");
                 });
 #pragma warning restore 612, 618
         }

@@ -21,10 +21,10 @@
         else
         {
             <TaskCard Model="@ComponentState.Value.Task" />
-            @if (ComponentState.Value.Task.TaskDto.Task.Description != null)
+            @if (ComponentState.Value.Task.Task.Description != null)
             {
                 <div class="editor-preview">
-                    @((MarkupString)Markdig.Markdown.ToHtml(ComponentState.Value.Task.TaskDto.Task.Description!, MarkdownPipeline))
+                    @((MarkupString)Markdig.Markdown.ToHtml(ComponentState.Value.Task.Task.Description!, MarkdownPipeline))
                 </div>
             }
         }

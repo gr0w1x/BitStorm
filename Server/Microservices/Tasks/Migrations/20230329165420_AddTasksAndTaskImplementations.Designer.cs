@@ -11,8 +11,8 @@ using Tasks.Repositories;
 namespace Tasks.Migrations
 {
     [DbContext(typeof(TasksContext))]
-    [Migration("20230321002327_AddTaskTags")]
-    partial class AddTaskTags
+    [Migration("20230329165420_AddTasksAndTaskImplementations")]
+    partial class AddTasksAndTaskImplementations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,6 +35,55 @@ namespace Tasks.Migrations
                     b.HasIndex("TasksId");
 
                     b.ToTable("TaskTagTask_");
+                });
+
+            modelBuilder.Entity("Types.Entities.TaskImplementation", b =>
+                {
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Language")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Version")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("CompletedSolution")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Details")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ExampleTests")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("InitialSolution")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PreloadedCode")
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid?>("Task_Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Tests")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("TaskId", "Language", "Version");
+
+                    b.HasIndex("Task_Id");
+
+                    b.ToTable("Implementations");
                 });
 
             modelBuilder.Entity("Types.Entities.TaskTag", b =>
@@ -69,6 +118,9 @@ namespace Tasks.Migrations
                     b.Property<int>("Level")
                         .HasColumnType("int");
 
+                    b.Property<int>("Likes")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -91,12 +143,7 @@ namespace Tasks.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("Task_Id")
-                        .HasColumnType("char(36)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("Task_Id");
 
                     b.ToTable("UserIdRecords");
                 });
@@ -116,16 +163,16 @@ namespace Tasks.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Types.Entities.UserIdRecord", b =>
+            modelBuilder.Entity("Types.Entities.TaskImplementation", b =>
                 {
                     b.HasOne("Types.Entities.Task_", null)
-                        .WithMany("Likes")
+                        .WithMany("Implementations")
                         .HasForeignKey("Task_Id");
                 });
 
             modelBuilder.Entity("Types.Entities.Task_", b =>
                 {
-                    b.Navigation("Likes");
+                    b.Navigation("Implementations");
                 });
 #pragma warning restore 612, 618
         }

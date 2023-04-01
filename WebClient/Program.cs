@@ -34,7 +34,7 @@ builder.Services.AddScoped<UserMiddleware>();
 
 builder.Services.AddBlazoredLocalStorage();
 
-builder.Services.AddScoped<ApiClient>(sp =>
+builder.Services.AddScoped(sp =>
     new ApiClient(sp.GetRequiredService<IState<UserState>>(), sp.GetRequiredService<IDispatcher>())
     {
         BaseAddress = new Uri(builder.Configuration["ApiUri"]!)

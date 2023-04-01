@@ -10,14 +10,14 @@ public enum TaskVisibility
     Public
 }
 
-public interface ITask: IHasId
+public interface ITask: IHasId, ICreated, IUpdated
 {
     string Title { get; set; }
     string? Description { get; set; }
 
     Guid AuthorId { get; }
 
-    List<UserIdRecord> Likes { get; set; }
+    int Likes { get; set; }
 
     int Level { get; set; }
     bool Beta { get; set; }
@@ -32,21 +32,6 @@ public interface ITask: IHasId
 public interface ITaskTag: IHasId<string>
 {
     List<Task_> Tasks { get; set; }
-}
-
-public interface ITaskImplementation
-{
-    Guid TaskId { get; }
-    string Language { get; }
-    string Version { get; }
-
-    string InitialSolution { get; set; }
-    string CompleteSolution { get; set; }
-
-    string PreloadedCode { get; set; }
-
-    string ExampleTests { get; set; }
-    string Tests { get; set; }
 }
 
 public static class TaskConstants
@@ -72,8 +57,7 @@ public record Task_: ITask, ICreated, IUpdated
     [Required]
     public Guid AuthorId { get; set; }
 
-    [JsonIgnore]
-    public List<UserIdRecord> Likes { get; set; }
+    public int Likes { get; set; }
 
     [Required]
     [MinLength(TaskConstants.MinTitleLength)]
@@ -106,22 +90,4 @@ public record TaskTag: ITaskTag
 
     [JsonIgnore]
     public List<Task_> Tasks { get; set; } = new List<Task_>();
-}
-
-public record TaskImplementation: ITaskImplementation
-{
-    public Guid TaskId { get; }
-    public string Language { get; set; }
-    public string Version { get; set; }
-
-    [Required]
-    public string InitialSolution { get; set; }
-    [Required]
-    public string CompleteSolution { get; set; }
-    [Required]
-    public string PreloadedCode { get; set; }
-    [Required]
-    public string ExampleTests { get; set; }
-    [Required]
-    public string Tests { get; set; }
 }

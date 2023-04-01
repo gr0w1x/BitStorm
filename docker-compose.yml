@@ -145,6 +145,22 @@ services:
     networks:
       - solutions-db-network
       - gateway-network
+  executions:
+    build:
+      context: .
+      dockerfile: Server/Microservices/Executions/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - '${EXECUTIONS_PORT}:80'
+    environment:
+      RABBITMQ_HOST: rabbitmq
+    env_file:
+      - .env
+    networks:
+      - rabbitmq-network
+      - gateway-network
   mailer:
     build:
       context: .

@@ -8,8 +8,9 @@
 @using WebClient.Views.Components.LanguageSelect
 @using WebClient.Views.Components.Button
 @using WebClient.Views.Components.MarkdownEditor
+@using WebClient.Views.Components.CircleSpinner
 
-@inherits ReduxComponent<ImplementationsPageState>
+@inherits PageComponent<ImplementationsPageState>
 
 <div class="layout">
     <div class="edit-implementations-layout">
@@ -51,8 +52,54 @@
                             Language="@(LanguageVersion!.Language)"
                             @bind-Value="CurrentImplementation.ExampleTestCases" />
                     </TabPanel>
-                    <TabPanel Name="output">
-                        Check tests...
+                    <TabPanel Name="output" class="output">
+                        @if (ComponentState.Value.Output != null)
+                        {
+                            <div class="output-marks">
+                                <span class="caption">
+                                    Time: @((int)ComponentState.Value.Output.Time.TotalMilliseconds)ms
+                                </span>
+                                <span class="caption @(ComponentState.Value.Output.ExitStatus == 0 ? "success" : "error")">
+                                    Status code: @(ComponentState.Value.Output.ExitStatus)
+                                </span>
+
+                                @if (ComponentState.Value.Output.Tests != null)
+                                {
+                                    <span class="caption @(ComponentState.Value.Output.Tests.Failed == 0 ? "success" : "")">
+                                        Passed: @ComponentState.Value.Output.Tests.Passed
+                                    </span>
+                                    <span class="caption @(ComponentState.Value.Output.Tests.Failed != 0 ? "error" : "")">
+                                        Failed: @ComponentState.Value.Output.Tests.Failed
+                                    </span>
+                                }
+                            </div>
+
+                            @if (ComponentState.Value.Output.Details != null)
+                            {
+                                <hr size="5" />
+                                
+                                <div class="output-details">
+                                    <pre>
+                                        @ComponentState.Value.Output.Details
+                                    </pre>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            if (ComponentState.Value.UxState.Is(UxState.Loading))
+                            {
+                                <span class="output-loading">
+                                    <CircleSpinner /> Sending Code ...
+                                </span>
+                            }
+                            else
+                            {
+                                <div>
+                                    Execution results will display here
+                                </div>
+                            }
+                        }
                     </TabPanel>
                 </Content>
             </Tabs>
@@ -92,10 +139,10 @@
         </div>
 
         <div class="buttons">
-            <WebClient.Views.Components.Button.Button>
+            <WebClient.Views.Components.Button.Button disabled="@(!Submitable)">
                 DELETE
             </WebClient.Views.Components.Button.Button>
-            <WebClient.Views.Components.Button.Button class="filled">
+            <WebClient.Views.Components.Button.Button disabled="@(!Submitable)" class="filled" onclick="@OnSave">
                 SAVE
             </WebClient.Views.Components.Button.Button>
         </div>

@@ -2,7 +2,6 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using CommonServer.Asp.HostedServices;
-using CommonServer.Data.Messages;
 using ExecutorTemplate;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
@@ -21,7 +20,7 @@ public class Executor: BaseExecutorService<Types.Languages.JavaScript_Node_v18_1
 
     protected static readonly VersionDto Version = CodeLanguages.VersionsByType[typeof(Types.Languages.JavaScript_Node_v18_15_0)];
 
-    protected static string MessageToCode(ExecuteCodeMessage execute) =>
+    protected static string MessageToCode(ExecuteCodeDto execute) =>
 $@"
 // Preloaded
 {execute.Preloaded}
@@ -31,10 +30,10 @@ $@"
 {execute.Tests}
 ";
 
-    public static async Task<ExecuteCodeResultMessage> ExecuteNodeCode(ExecuteCodeMessage execute)
+    public static async Task<ExecuteCodeResultDto> ExecuteNodeCode(ExecuteCodeDto execute)
     {
         var folder = $"./node/tests/{Path.GetRandomFileName()}";
-        ExecuteCodeResultMessage? message;
+        ExecuteCodeResultDto? message;
         var watcher = Stopwatch.StartNew();
         try
         {
@@ -48,8 +47,8 @@ $@"
 
             Task<(int exitCode, string output)> processTask = Task.Run(() =>
             {
-                StringBuilder builder = new StringBuilder();
-                DataReceivedEventHandler onRecieved = (_, e) => builder.AppendLine(e.Data);
+                StringBuilder builder = new();
+                void onRecieved(object _, DataReceivedEventArgs e) => builder.AppendLine(e.Data);
                 using Process process = new();
                 process.StartInfo.FileName = "bash";
                 process.StartInfo.Arguments = $"-c \"ulimit -v {Version.RamSizeLimitMb}000 && node ./node/node_modules/mocha/bin/mocha.js node/test.js\"";
@@ -70,13 +69,13 @@ $@"
             if (processTask.Wait(Version.ExecutionTimeout))
             {
                 watcher.Stop();
-                ExecuteTestsResultMessage? executeTests = null;
+                ExecuteTests? executeTests = null;
                 if (Path.Exists(resultsFile))
                 {
-                    executeTests = JsonSerializer.Deserialize<ExecuteTestsResultMessage>(await File.ReadAllTextAsync(resultsFile));
+                    executeTests = JsonSerializer.Deserialize<ExecuteTests>(await File.ReadAllTextAsync(resultsFile));
                 }
                 var output = await processTask;
-                message = new ExecuteCodeResultMessage()
+                message = new ExecuteCodeResultDto()
                 {
                     Details = output.output,
                     ExitStatus = output.exitCode,
@@ -86,7 +85,7 @@ $@"
             }
             else
             {
-                message = new ExecuteCodeResultMessage()
+                message = new ExecuteCodeResultDto()
                 {
                     Details = "Execution Timed Out",
                     Time = Version.ExecutionTimeout,
@@ -99,7 +98,7 @@ $@"
             watcher.Stop();
             Console.WriteLine(e.Message);
             Console.WriteLine(e.StackTrace);
-            message = new ExecuteCodeResultMessage()
+            message = new ExecuteCodeResultDto()
             {
                 Details = "Something happenning wrong",
                 Time = watcher.Elapsed,
@@ -113,6 +112,6 @@ $@"
         return message;
     }
 
-    protected override Task<ExecuteCodeResultMessage> ExecuteCode(ExecuteCodeMessage execute)
+    protected override Task<ExecuteCodeResultDto> ExecuteCode(ExecuteCodeDto execute)
         => ExecuteNodeCode(execute);
 }

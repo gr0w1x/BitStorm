@@ -42,7 +42,7 @@ public partial class TaskPage
             var task = await TasksService.GetTask(taskId);
             Dispatcher.Dispatch(new SetTaskAction(task != null ? new TaskCardModel()
             {
-                TaskDto = task
+                Task = task
             } : null));
             Dispatcher.Dispatch(new SetUxState<TaskPageState>(UxState.Success));
         }

@@ -3,12 +3,6 @@ using Types.Entities;
 
 namespace Types.Dtos;
 
-public record TaskDto
-{
-    public Task_ Task { get; set; }
-    public int Likes  { get; set; }
-}
-
 public record TasksInfoDto
 {
     public int Total { get; set; }

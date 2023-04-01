@@ -10,7 +10,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/auth/{path}",
-      "UpstreamHttpMethod": [ "GET", "OPTIONS", "POST", "PUT" ]
+      "UpstreamHttpMethod": [ "GET", "OPTIONS", "POST", "PUT", "DELETE" ]
     },
     {
       "DownstreamPathTemplate": "/users/{path}",
@@ -22,7 +22,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/users/{path}",
-      "UpstreamHttpMethod": [ "GET", "OPTIONS", "POST", "PUT" ]
+      "UpstreamHttpMethod": [ "GET", "OPTIONS", "POST", "PUT", "DELETE" ]
     },
     {
       "DownstreamPathTemplate": "/tasks/{path}",
@@ -34,7 +34,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/tasks/{path}",
-      "UpstreamHttpMethod": [ "GET", "OPTIONS", "POST", "PUT" ],
+      "UpstreamHttpMethod": [ "GET", "OPTIONS", "POST", "PUT", "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
       }
@@ -49,7 +49,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/public/tasks/{path}",
-      "UpstreamHttpMethod": [ "GET", "OPTIONS", "POST", "PUT" ]
+      "UpstreamHttpMethod": [ "GET", "OPTIONS", "POST", "PUT", "DELETE" ]
     },
     {
       "DownstreamPathTemplate": "/languages/{path}",
@@ -61,7 +61,22 @@
         }
       ],
       "UpstreamPathTemplate": "/api/public/languages/{path}",
-      "UpstreamHttpMethod": [ "GET", "OPTIONS", "POST", "PUT" ]
+      "UpstreamHttpMethod": [ "GET", "OPTIONS", "POST", "PUT", "DELETE" ]
+    },
+    {
+      "DownstreamPathTemplate": "/{path}",
+      "DownstreamScheme": "ws",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "executions",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/api/executions/{path}",
+      "UpstreamHttpMethod": [ "GET", "OPTIONS", "POST", "PUT", "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
     }
   ]
 }
