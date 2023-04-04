@@ -19,6 +19,7 @@ public class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("sign-in")]
+    [ValidationFilter]
     public Task<IResult> SignIn([FromBody] SignInDto body)
         => _authService.SignIn(body.EmailOrUsername, body.Password);
 
@@ -30,6 +31,7 @@ public class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("confirm")]
+    [ValidationFilter]
     public Task<IResult> Confirm([FromBody] ConfirmDto body)
         => _authService.Confirm(body.code);
 

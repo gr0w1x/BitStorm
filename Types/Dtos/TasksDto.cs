@@ -46,7 +46,7 @@ public record GetTasksDto: GetTasksInfoDto
 
 public record CreateTaskDto
 {
-    [Required]
+    [Required(ErrorMessage = "title required")]
     [MinLength(TaskConstants.MinTitleLength, ErrorMessage = "required at least 1 character")]
     [MaxLength(TaskConstants.MaxTitleLength, ErrorMessage = "too long title (256 max)")]
     public string Title { get; set; }
@@ -54,16 +54,19 @@ public record CreateTaskDto
     [MaxLength(TaskConstants.MaxDescriptionLength, ErrorMessage = "too long title (4096 max)")]
     public string? Description { get; set; }
 
+    [Required(ErrorMessage = "suggested level required")]
     [Range(1, TaskConstants.MaxLevel, ErrorMessage = "possible task difficulty level values: 1-9")]
     public int SuggestedLevel { get; set; } = 9;
 
+    [Required(ErrorMessage = "tags required")]
     public string[] Tags { get; set; } = Array.Empty<string>();
 
+    [Required(ErrorMessage = "task visibility required")]
     public TaskVisibility Visibility { get; set; } = TaskVisibility.Private;
 }
 
 public record EditTaskDto: CreateTaskDto
 {
-    [Required]
+    [Required(ErrorMessage = "task id required")]
     public Guid TaskId { get; }
 }

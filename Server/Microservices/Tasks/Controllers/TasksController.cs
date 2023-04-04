@@ -21,11 +21,13 @@ public class TasksController: Controller
 
     [AllowAnonymous]
     [HttpGet("public/{id}")]
+    [ValidationFilter]
     public Task<IResult> GetTask(Guid id) =>
         _tasksService.GetTask(id, HttpContext.GetJwt());
 
     [AllowAnonymous]
     [HttpGet("public/info")]
+    [ValidationFilter]
     public Task<IResult> GetTasksInfo(GetTasksInfoDto dto) =>
         _tasksService.GetTasksInfo(dto);
 
