@@ -1,6 +1,7 @@
 using System.Net;
 using CommonServer.Data.Repositories;
 using Tasks.Repositories;
+using Types.Constants.Errors;
 using Types.Dtos;
 using Types.Entities;
 
@@ -35,7 +36,7 @@ public class TasksService
         {
             return Results.Ok(task);
         }
-        return Results.NotFound(new ErrorDto("no task found", HttpStatusCode.NotFound));
+        return Results.NotFound(new ErrorDto("no task found", CommonErrors.NotFoundError));
     }
 
     public async Task<IResult> GetTasksInfo(GetTasksInfoDto dto)
@@ -47,7 +48,10 @@ public class TasksService
 
         if (existedTaskWithTitle != null)
         {
-            return Results.BadRequest(new ErrorDto("task with given title already exists", HttpStatusCode.BadRequest));
+            return Results.BadRequest(
+                new ErrorDto("task with given title already exists",
+                CommonErrors.ValidationError
+            ));
         }
 
         var task = new Task_()

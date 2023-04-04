@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using Types.Constants.Errors;
 using Types.Dtos;
 
 namespace WebClient.Services;
@@ -13,20 +14,43 @@ public class BaseApiService
         _client = apiClient;
     }
 
+    public async Task Send(ApiMessage message)
+    {
+        var res = await _client.SendApiAsync(message);
+        if (!res.IsSuccessStatusCode)
+        {
+            var error = await res.Content.ReadFromJsonAsync<ErrorDto>();
+            throw new ApiErrorException(error ?? new ErrorDto("something happened wrong", CommonErrors.InternalServerError));
+        }
+    }
+
+    public async Task<TRes> SendAndRecieve<TRes>(ApiMessage message)
+        where TRes: class
+    {
+        var res = await _client.SendApiAsync(message);
+        if (!res.IsSuccessStatusCode)
+        {
+            var error = await res.Content.ReadFromJsonAsync<ErrorDto>();
+            throw new ApiErrorException(error ?? new ErrorDto("something happened wrong", CommonErrors.InternalServerError));
+        }
+        return (await res.Content.ReadFromJsonAsync<TRes>())!;
+    }
+
     public async Task<TRes?> TrySendAndRecieve<TRes>(ApiMessage message)
         where TRes: class
     {
         var res = await _client.SendApiAsync(message);
         if (!res.IsSuccessStatusCode)
         {
-            var error = (await res.Content.ReadFromJsonAsync<ErrorDto>())!;
-            // If res status code is 404, it not guarantee that entity not found (microservice disabled)
-            // If ErrorDto StatusCode is 404, we can sure that this make a microservice
-            if (error.StatusCode == HttpStatusCode.NotFound)
+            var error = await res.Content.ReadFromJsonAsync<ErrorDto>();
+            if (error == null || error.Code != CommonErrors.NotFoundError)
+            {
+                throw new ApiErrorException(error ?? new ErrorDto("something happened wrong", CommonErrors.InternalServerError));
+            }
+            else
             {
                 return null;
             }
-            throw new ApiErrorException(error);
         }
         return (await res.Content.ReadFromJsonAsync<TRes>())!;
     }

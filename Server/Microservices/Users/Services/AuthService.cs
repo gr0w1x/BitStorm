@@ -11,6 +11,7 @@ using Users.Templates;
 using Encoding = System.Text.Encoding;
 using Types.Dtos;
 using Microsoft.AspNetCore.WebUtilities;
+using Types.Constants.Errors;
 
 namespace Users.Services;
 
@@ -52,7 +53,12 @@ public class AuthService
     {
         if (!user.Confirmed)
         {
-            return (false, Results.BadRequest(new ErrorDto("User is not confirmed", HttpStatusCode.BadRequest)));
+            return (false, Results.BadRequest(
+                new ErrorDto(
+                    "user is not confirmed",
+                    AuthErrors.NotConfirmedError
+                )
+            ));
         }
 
         // TODO: add banned check
@@ -87,7 +93,11 @@ public class AuthService
 
         if (user == null || !_hasher.Compare(password, user.Password))
         {
-            return Results.NotFound(new ErrorDto("Invalid email or password", HttpStatusCode.NotFound));
+            return Results.NotFound(
+                new ErrorDto(
+                    "invalid email or password",
+                    CommonErrors.NotFoundError
+                ));
         }
 
         return await TryCreateAndSaveTokens(user);
@@ -99,16 +109,16 @@ public class AuthService
 
         if (user != null)
         {
-            return Results.BadRequest(new ErrorDto($"User with {(
+            return Results.BadRequest(new ErrorDto($"user with {(
                 user.Username == username
                     ? $"username {user.Username}"
                     : $"email {user.Email}"
-            )} already exists", HttpStatusCode.BadRequest));
+            )} already exists", CommonErrors.ValidationError));
         }
 
         if (_rabbitMqProvider.Model == null)
         {
-            return Results.StatusCode(500);
+            throw new Exception("RabbitMQ not connected");
         }
 
         var basicProperties = _rabbitMqProvider.Model.CreateBasicProperties();
@@ -157,19 +167,19 @@ public class AuthService
 
         if (confirm == null)
         {
-            return Results.BadRequest(new ErrorDto("Wrong confirm code", HttpStatusCode.BadRequest));
+            return Results.NotFound(new ErrorDto("wrong confirm code", CommonErrors.NotFoundError));
         }
 
         User? user = await _usersRepository.GetByEmailOrUsername(confirm.Email, String.Empty);
 
         if (user == null || (DateTimeOffset.UtcNow - user.Registered) > UserConstants.ConfirmPeriod)
         {
-            return Results.BadRequest(new ErrorDto("Account confirmation expired", HttpStatusCode.BadRequest));
+            return Results.BadRequest(new ErrorDto("account confirmation expired", AuthErrors.ConfirmExpiredError));
         }
 
         if (user.Confirmed)
         {
-            return Results.BadRequest(new ErrorDto("Already confirmed", HttpStatusCode.BadRequest));
+            return Results.BadRequest(new ErrorDto("already confirmed", AuthErrors.AlreadyConfirmedError));
         }
 
         user.Confirmed = true;
@@ -187,14 +197,14 @@ public class AuthService
 
         if (refreshTokenRecord == null || refreshTokenRecord.Expired < DateTimeOffset.UtcNow)
         {
-            return Results.NotFound(new ErrorDto("Refresh token invalid or expired", HttpStatusCode.NotFound));
+            return Results.NotFound(new ErrorDto("refresh token invalid or expired", AuthErrors.RefreshTokenExpiredError));
         }
 
         User? user = await _usersRepository.GetById(refreshTokenRecord.UserId);
 
         if (user == null)
         {
-            return Results.NotFound(new ErrorDto("User was deleted", HttpStatusCode.NotFound));
+            return Results.NotFound(new ErrorDto("user not found", CommonErrors.NotFoundError));
         }
 
         await _refreshTokenRecordsRepository.DeleteExpired();

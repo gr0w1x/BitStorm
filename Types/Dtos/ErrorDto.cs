@@ -1,11 +1,10 @@
-using System.Net;
 using System.ComponentModel.DataAnnotations;
 
 namespace Types.Dtos;
 
 public record ErrorDto(
     [Required] string Message,
-    [Required] HttpStatusCode StatusCode
+    [Required] int Code
 );
 
 public class ApiErrorException: Exception

@@ -39,9 +39,16 @@ public class UserMiddleware: Middleware
             try
             {
                 var tokens = _localStorage.GetItem<AccessRefreshTokensDto>(TokensKey);
-                dispatcher.Dispatch(new SetTokensAction(tokens));
-                await base.InitializeAsync(dispatcher, store);
-                return;
+                if (tokens.Refresh.Expires > DateTime.UtcNow)
+                {
+                    dispatcher.Dispatch(new SetTokensAction(tokens));
+                    await base.InitializeAsync(dispatcher, store);
+                    return;
+                }
+                else
+                {
+                    throw new Exception();
+                }
             }
             catch
             {
@@ -67,21 +74,19 @@ public class UserMiddleware: Middleware
         _dispatcher.Dispatch(new SetUxState<UserMenuState>(UxState.Loading));
         try
         {
-            PublicUser user = (await _usersService.GetUser(userId))!;
-            _dispatcher.Dispatch(new SetUserAction(user));
-            _dispatcher.Dispatch(new SetUxState<UserMenuState>(UxState.Success));
-        }
-        catch (Exception e)
-        {
-            if (
-                e is NullReferenceException ||
-                (e is ApiErrorException apiError && apiError.Error.StatusCode == HttpStatusCode.NotFound)
-            )
+            PublicUser? user = await _usersService.GetUser(userId);
+            if (user == null)
             {
                 _dispatcher.Dispatch(new SignOutAction());
-                _dispatcher.Dispatch(new SetUxState<UserMenuState>(UxState.Success));
-                return;
             }
+            else
+            {
+                _dispatcher.Dispatch(new SetUserAction(user));
+            }
+            _dispatcher.Dispatch(new SetUxState<UserMenuState>(UxState.Success));
+        }
+        catch
+        {
             _dispatcher.Dispatch(new SetUxState<UserMenuState>(UxState.Error));
         }
     }

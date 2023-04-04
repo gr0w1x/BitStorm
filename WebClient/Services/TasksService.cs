@@ -18,11 +18,11 @@ public class TasksService: BaseApiService
         });
 
     public async Task<Task_> CreateTask(CreateTaskDto dto) =>
-        (await TrySendAndRecieve<Task_>(new ApiMessage()
+        await SendAndRecieve<Task_>(new ApiMessage()
         {
             RequestUri = new Uri("api/tasks/create", UriKind.RelativeOrAbsolute),
             Method = HttpMethod.Post,
             Content = new StringContent(JsonSerializer.Serialize(dto), Encoding.UTF8, "application/json"),
             NeedAuthorization = true
-        }))!;
+        });
 }

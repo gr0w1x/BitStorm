@@ -53,4 +53,6 @@ app.UseDefaultCors();
 
 app.MapControllers();
 
+app.UseDefaultExceptionHandler();
+
 app.Run();

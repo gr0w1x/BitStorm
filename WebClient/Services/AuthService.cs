@@ -8,17 +8,17 @@ public class AuthService: BaseApiService
 {
     public AuthService(ApiClient apiClient): base(apiClient) {}
 
-    public async Task<AccessRefreshTokensDto> SignIn(SignInDto dto) =>
-        (await TrySendAndRecieve<AccessRefreshTokensDto>(new ApiMessage()
+    public Task<AccessRefreshTokensDto> SignIn(SignInDto dto) =>
+        SendAndRecieve<AccessRefreshTokensDto>(new ApiMessage()
         {
             RequestUri = new Uri("/api/auth/sign-in", UriKind.RelativeOrAbsolute),
             Method = HttpMethod.Post,
             Content = new StringContent(JsonSerializer.Serialize(dto), Encoding.UTF8, "application/json")
-        }))!;
+        });
 
     public async Task SignUp(SignUpDto dto)
     {
-        await _client.SendApiAsync(new ApiMessage()
+        await Send(new ApiMessage()
         {
             RequestUri = new Uri("/api/auth/sign-up", UriKind.RelativeOrAbsolute),
             Method = HttpMethod.Post,
@@ -26,11 +26,11 @@ public class AuthService: BaseApiService
         });
     }
 
-    public async Task<AccessRefreshTokensDto> Confirm(ConfirmDto dto) =>
-        (await TrySendAndRecieve<AccessRefreshTokensDto>(new ApiMessage()
+    public Task<AccessRefreshTokensDto> Confirm(ConfirmDto dto) =>
+        SendAndRecieve<AccessRefreshTokensDto>(new ApiMessage()
         {
             RequestUri = new Uri("/api/auth/confirm", UriKind.RelativeOrAbsolute),
             Method = HttpMethod.Post,
             Content = new StringContent(JsonSerializer.Serialize(dto), Encoding.UTF8, "application/json")
-        }))!;
+        });
 }

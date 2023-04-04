@@ -79,7 +79,6 @@ public class TasksRepository:
 
     public override Task<Task_?> GetById(Guid id) =>
         Entities
-            .Include(task => task.Likes)
             .Include(task => task.Tags)
             .FirstOrDefaultAsync(task => task.Id == id);
 

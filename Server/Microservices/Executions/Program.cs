@@ -32,4 +32,6 @@ app.UseAuthentication();
 
 app.MapHub<ExecutionsHub>("/hub");
 
+app.UseDefaultExceptionHandler();
+
 app.Run();

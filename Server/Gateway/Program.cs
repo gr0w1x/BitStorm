@@ -59,4 +59,6 @@ app.MapControllers();
 
 await app.UseOcelot();
 
+app.UseDefaultExceptionHandler();
+
 app.Run();
