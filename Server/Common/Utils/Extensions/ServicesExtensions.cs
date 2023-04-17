@@ -40,10 +40,6 @@ public static class ServicesExtensions
             .AddScheme<JwtBearerOptions, JwtBearerAdsToContextHandler>(
                 JwtBearerDefaults.AuthenticationScheme,
                 builder
-            )
-            .AddScheme<JwtBearerOptions, OptionalJwtBearerHandler>(
-                OptionalJwtBearerHandler.SchemeName,
-                builder
             );
         return services;
     }

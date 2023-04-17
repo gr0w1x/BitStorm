@@ -19,21 +19,52 @@ public class TasksController: Controller
         _tasksService = tasksService;
     }
 
+    [Authorize]
     [AllowAnonymous]
     [HttpGet("public/{id}")]
-    [ValidationFilter]
     public Task<IResult> GetTask(Guid id) =>
         _tasksService.GetTask(id, HttpContext.GetJwt());
 
+    [Authorize]
     [AllowAnonymous]
     [HttpGet("public/info")]
     [ValidationFilter]
-    public Task<IResult> GetTasksInfo(GetTasksInfoDto dto) =>
-        _tasksService.GetTasksInfo(dto);
+    public Task<IResult> GetTasksInfo([FromQuery] GetTasksInfoDto dto) =>
+        _tasksService.GetTasksInfo(dto, HttpContext.GetJwt());
 
-    [Authorize(AuthenticationSchemes = OptionalJwtBearerHandler.SchemeName)]
+    [Authorize]
+    [AllowAnonymous]
+    [HttpGet("public/search")]
+    [ValidationFilter]
+    public Task<IResult> GetTasks([FromQuery] GetTasksDto dto) =>
+        _tasksService.GetTasks(dto, HttpContext.GetJwt());
+
+    [Authorize]
     [HttpPost("create")]
     [ValidationFilter]
     public Task<IResult> CreateTask([FromBody] CreateTaskDto dto) =>
         _tasksService.CreateTask(dto, HttpContext.GetJwt()!);
+
+    [Authorize]
+    [HttpPost("{id}")]
+    [ValidationFilter]
+    public Task<IResult> UpdateTask(Guid id, [FromBody] UpdateTaskDto dto) =>
+        _tasksService.UpdateTask(id, dto, HttpContext.GetJwt()!);
+
+    [Authorize]
+    [HttpDelete("{id}")]
+    public Task<IResult> DeleteTask(Guid id) =>
+        _tasksService.DeleteTask(id, HttpContext.GetJwt()!);
+
+    [Authorize]
+    [HttpPost("{id}/approve")]
+    [ValidationFilter]
+    public Task<IResult> ApproveTask(Guid id, [FromBody] ApproveTaskDto dto) =>
+        _tasksService.ApproveTask(id, dto, HttpContext.GetJwt()!);
+
+    [Authorize]
+    [HttpPost("{id}/publish")]
+    [ValidationFilter]
+    public Task<IResult> PublishTask(Guid id) =>
+        _tasksService.PublishTask(id, HttpContext.GetJwt()!);
 }
