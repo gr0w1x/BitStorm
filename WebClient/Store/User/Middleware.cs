@@ -1,8 +1,8 @@
-using System.Net;
 using Blazored.LocalStorage;
 using Fluxor;
 using Types.Dtos;
 using Types.Entities;
+using WebClient.Extensions;
 using WebClient.Services;
 using WebClient.Store.Common;
 using WebClient.Store.UserMenu;
@@ -16,17 +16,21 @@ public class UserMiddleware: Middleware
 
     private readonly ISyncLocalStorageService _localStorage;
     private readonly IState<UserState> _userState;
+    private readonly IState<UserMenuState> _userMenuState;
+
     private readonly UsersService _usersService;
 
     public UserMiddleware(
         ISyncLocalStorageService localStorageService,
         UsersService usersService,
-        IState<UserState> userState
+        IState<UserState> userState,
+        IState<UserMenuState> userMenuState
     )
     {
        _localStorage = localStorageService;
        _usersService = usersService;
        _userState = userState;
+       _userMenuState = userMenuState;
     }
 
     private IDispatcher _dispatcher;
@@ -56,6 +60,7 @@ public class UserMiddleware: Middleware
             }
         }
         dispatcher.Dispatch(new InitiateAction());
+        dispatcher.Dispatch(new SetUxState<UserMenuState>(UxState.Success));
         await base.InitializeAsync(dispatcher, store);
     }
 
@@ -74,7 +79,7 @@ public class UserMiddleware: Middleware
         _dispatcher.Dispatch(new SetUxState<UserMenuState>(UxState.Loading));
         try
         {
-            PublicUser? user = await _usersService.GetUser(userId);
+            PublicUser? user = await _usersService.Get(userId);
             if (user == null)
             {
                 _dispatcher.Dispatch(new SignOutAction());
@@ -96,7 +101,7 @@ public class UserMiddleware: Middleware
         if (action is SetTokensAction tokensAction)
         {
             _localStorage.SetItem(TokensKey, tokensAction.Tokens);
-            if (_userState.Value.User?.Id != tokensAction.Tokens.UserId)
+            if (_userState.Value.User?.Id != tokensAction.Tokens.UserId && !_userMenuState.Value.UxState.Is(UxState.Loading))
             {
                 _dispatcher.Dispatch(new LoadUserAction(tokensAction.Tokens.UserId));
             }

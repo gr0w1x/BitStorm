@@ -5,7 +5,7 @@ namespace WebClient.Store.User;
 public static class UserReducers
 {
     [ReducerMethod]
-    public static UserState SetAccessReducer(UserState state, InitiateAction _) =>
+    public static UserState InitiateReducer(UserState state, InitiateAction _) =>
         state with
         {
             Initialized = true
