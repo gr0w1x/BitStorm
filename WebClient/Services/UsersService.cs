@@ -2,12 +2,17 @@ using Types.Entities;
 
 namespace WebClient.Services;
 
-public class UsersService: BaseApiService
+public class UsersService: BaseCachedService<Guid, PublicUser?>
 {
-    public UsersService(ApiClient apiClient): base(apiClient) { }
+    private readonly ApiClient _apiClient;
 
-    public async Task<PublicUser?> GetUser(Guid userId) =>
-        await TrySendAndRecieve<PublicUser>(new ApiMessage()
+    public UsersService(ApiClient apiClient): base()
+    {
+        _apiClient = apiClient;
+    }
+
+    protected override Task<PublicUser?> Load(Guid userId) =>
+        _apiClient.TrySendAndRecieve<PublicUser>(new ApiMessage()
         {
             RequestUri = new Uri($"/api/users/{userId}", UriKind.RelativeOrAbsolute),
             Method = HttpMethod.Get,

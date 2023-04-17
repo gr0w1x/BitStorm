@@ -4,12 +4,17 @@ using Types.Dtos;
 
 namespace WebClient.Services;
 
-public class AuthService: BaseApiService
+public class AuthService
 {
-    public AuthService(ApiClient apiClient): base(apiClient) {}
+    private readonly ApiClient _apiClient;
+
+    public AuthService(ApiClient apiClient)
+    {
+        _apiClient = apiClient;
+    }
 
     public Task<AccessRefreshTokensDto> SignIn(SignInDto dto) =>
-        SendAndRecieve<AccessRefreshTokensDto>(new ApiMessage()
+        _apiClient.SendAndRecieve<AccessRefreshTokensDto>(new ApiMessage()
         {
             RequestUri = new Uri("/api/auth/sign-in", UriKind.RelativeOrAbsolute),
             Method = HttpMethod.Post,
@@ -18,7 +23,7 @@ public class AuthService: BaseApiService
 
     public async Task SignUp(SignUpDto dto)
     {
-        await Send(new ApiMessage()
+        await _apiClient.Send(new ApiMessage()
         {
             RequestUri = new Uri("/api/auth/sign-up", UriKind.RelativeOrAbsolute),
             Method = HttpMethod.Post,
@@ -27,7 +32,7 @@ public class AuthService: BaseApiService
     }
 
     public Task<AccessRefreshTokensDto> Confirm(ConfirmDto dto) =>
-        SendAndRecieve<AccessRefreshTokensDto>(new ApiMessage()
+        _apiClient.SendAndRecieve<AccessRefreshTokensDto>(new ApiMessage()
         {
             RequestUri = new Uri("/api/auth/confirm", UriKind.RelativeOrAbsolute),
             Method = HttpMethod.Post,
