@@ -10,5 +10,5 @@ public record TaskPageState: BaseUxServerErrorState<TaskPageState>
 {
     public override UxState InitialState => UxState.Idle;
 
-    public TaskCardModel? Task { get; set; }
+    public TaskCardModel? TaskModel { get; set; }
 }
