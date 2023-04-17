@@ -189,16 +189,6 @@ services:
     environment:
       RABBITMQ_HOST: rabbitmq
       EXECUTOR_REQUEST_QUEUE: javascript-v18-15-0
-#  web-client:
-#    build:
-#      context: .
-#      dockerfile: WebClient/Dockerfile
-#    ports:
-#      - '${WEB_CLIENT_PORT}:5069'
-#    env_file:
-#      - .env
-#    networks:
-#      - web-client-network
 
 networks:
   adminer-network:
