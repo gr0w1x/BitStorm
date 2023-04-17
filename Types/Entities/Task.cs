@@ -81,6 +81,28 @@ public record Task_: ITask, ICreated, IUpdated
     public DateTimeOffset? UpdatedAt { get; set; }
 
     public ICollection<TaskImplementation> Implementations { get; set; }
+
+    public bool IsVisible(IUser? user) =>
+        Visibility == TaskVisibility.Public ||
+        (
+            Visibility == TaskVisibility.Private && user != null && (
+                (AuthorId == user.Id) ||
+                ((user.Roles & UserRoles.Admin) != UserRoles.None)
+            )
+        );
+
+    public bool CanUpdate(IUser user) =>
+        AuthorId == user.Id;
+
+    public bool CanDelete(IUser user) =>
+        CanUpdate(user) || ((user.Roles & UserRoles.Admin) != UserRoles.None);
+
+    public bool CanPublish(IUser user) =>
+        CanUpdate(user);
+
+    public bool CanApprove(IUser user) =>
+        (user.Roles & (UserRoles.Admin | UserRoles.Moderator)) != UserRoles.None &&
+        AuthorId != user.Id;
 }
 
 public record TaskTag: ITaskTag

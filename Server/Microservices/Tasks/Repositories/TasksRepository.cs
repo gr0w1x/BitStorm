@@ -1,4 +1,6 @@
+using System.Linq.Expressions;
 using CommonServer.Data.Repositories;
+using CommonServer.Utils.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Types.Dtos;
 using Types.Entities;
@@ -8,7 +10,8 @@ namespace Tasks.Repositories;
 public interface ITasksRepository: IRepository<Task_, Guid>
 {
     Task<Task_?> GetByTitle(string title);
-    Task<TasksInfoDto> GetTasksInfo(GetTasksInfoDto dto);
+    Task<TasksInfoDto> GetTasksInfo(GetTasksInfoDto dto, bool viewAll, Guid? viewer);
+    Task<IEnumerable<Task_>> GetTasks(GetTasksDto dto, bool viewAll, Guid? viewer);
 }
 
 public class TasksRepository:
@@ -24,10 +27,26 @@ public class TasksRepository:
         _tagsRepository = tagsRepository;
     }
 
-    public async Task<TasksInfoDto> GetTasksInfo(GetTasksInfoDto dto)
+    private IQueryable<Task_> TasksSearchQuery(GetTasksInfoDto dto, bool viewAll, Guid? viewer)
     {
         var query = Entities.Include(task => task.Tags).AsQueryable();
 
+        if (dto.Query != null)
+        {
+            query = query.Where(task => EF.Functions.Like(task.Title + task.Description, $"%{dto.Query}%"));
+        }
+        if (!viewAll)
+        {
+            if (viewer != null)
+            {
+                var v = viewer.Value;
+                query = query.Where(task => task.AuthorId == v);
+            }
+            else
+            {
+                query = query.Where(task => task.Visibility == TaskVisibility.Public);
+            }
+        }
         if (dto.Levels != null)
         {
             query = query
@@ -46,10 +65,6 @@ public class TasksRepository:
                 break;
             }
         }
-        if (dto.Query != null)
-        {
-            query.Where(task => task.Title.Contains(dto.Query));
-        }
         if (dto.Languages != null)
         {
             query = query
@@ -60,9 +75,21 @@ public class TasksRepository:
         }
         if (dto.Tags != null)
         {
-            query = query
-                .Where(task => dto.Tags.All(tag => task.Tags.Any(t => t.Id == tag)));
+            foreach (var _tag in dto.Tags)
+            {
+                query = query
+                    .Where(
+                        task => task.Tags.Any(t => t.Id == _tag)
+                    );
+            }
         }
+
+        return query;
+    }
+
+    public async Task<TasksInfoDto> GetTasksInfo(GetTasksInfoDto dto, bool viewAll, Guid? viewer)
+    {
+        var query = TasksSearchQuery(dto, viewAll, viewer);
 
         var total = query.Count();
         var tags = query
@@ -75,6 +102,37 @@ public class TasksRepository:
             Total = total,
             Tags = tags
         };
+    }
+
+    public async Task<IEnumerable<Task_>> GetTasks(GetTasksDto dto, bool viewAll, Guid? viewer)
+    {
+        var query = TasksSearchQuery(dto, viewAll, viewer);
+
+        Func
+        <
+            IQueryable<Task_>,
+            Expression<Func<Task_, object>>,
+            IOrderedQueryable<Task_>
+        > sortStrategy = (
+            (dto.Sort == GetTasksDto.SortStrategy.Name && dto.Sort == GetTasksDto.SortStrategy.Level)
+                ? ((IQueryable<Task_> query, Expression<Func<Task_, object>> key) => dto.Inversed ? query.OrderByDescending(key) : query.OrderBy(key))
+                : ((IQueryable<Task_> query, Expression<Func<Task_, object>> key) => dto.Inversed ? query.OrderBy(key) : query.OrderByDescending(key))
+        );
+
+        Expression<Func<Task_, object>> mapper =
+            dto.Sort == GetTasksDto.SortStrategy.LastUpdated
+                ? task => task.UpdatedAt ?? task.CreatedAt
+                : dto.Sort == GetTasksDto.SortStrategy.Level
+                ? task => task.Level
+                : dto.Sort == GetTasksDto.SortStrategy.Likes
+                ? task => task.Likes
+                : task => task.Title;
+
+        query = sortStrategy(query, mapper);
+
+        return query
+            .SkipAndTake(dto.Skip, dto.Take)
+            .ToList();
     }
 
     public override Task<Task_?> GetById(Guid id) =>
@@ -102,5 +160,22 @@ public class TasksRepository:
                     });
         }
         await base.Create(entities);
+    }
+
+    public override async Task Update(params Task_[] entities)
+    {
+        var tags = entities.SelectMany(task => task.Tags).Select(tag => tag.Id).ToHashSet();
+        var existed = (await _tagsRepository.GetByIds(tags.ToArray())).ToDictionary(tag => tag.Id);
+        foreach(var task in entities)
+        {
+            task.Tags =
+                task.Tags
+                    .ConvertAll(tag =>
+                    {
+                        existed.TryGetValue(tag.Id, out TaskTag? t);
+                        return t ?? tag;
+                    });
+        }
+        await base.Update(entities);
     }
 }

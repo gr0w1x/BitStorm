@@ -34,6 +34,7 @@ public record GetTasksDto: GetTasksInfoDto
     public int Skip { get; set; }
     [Required]
     public int Take { get; set; }
+    public bool? Inversed { get; set; }
 
     public enum SortStrategy
     {
@@ -44,29 +45,39 @@ public record GetTasksDto: GetTasksInfoDto
     }
 }
 
-public record CreateTaskDto
+public record BaseTaskDto
+{
+    [MaxLength(TaskConstants.MaxDescriptionLength, ErrorMessage = "too long description (4096 max)")]
+    public string? Description { get; set; }
+
+    public string[]? Tags { get; set; }
+}
+
+public record CreateTaskDto: BaseTaskDto
 {
     [Required(ErrorMessage = "title required")]
     [MinLength(TaskConstants.MinTitleLength, ErrorMessage = "required at least 1 character")]
     [MaxLength(TaskConstants.MaxTitleLength, ErrorMessage = "too long title (256 max)")]
     public string Title { get; set; }
 
-    [MaxLength(TaskConstants.MaxDescriptionLength, ErrorMessage = "too long title (4096 max)")]
-    public string? Description { get; set; }
-
-    [Required(ErrorMessage = "suggested level required")]
     [Range(1, TaskConstants.MaxLevel, ErrorMessage = "possible task difficulty level values: 1-9")]
-    public int SuggestedLevel { get; set; } = 9;
+    public int? SuggestedLevel { get; set; }
 
-    [Required(ErrorMessage = "tags required")]
-    public string[] Tags { get; set; } = Array.Empty<string>();
-
-    [Required(ErrorMessage = "task visibility required")]
     public TaskVisibility Visibility { get; set; } = TaskVisibility.Private;
 }
 
-public record EditTaskDto: CreateTaskDto
+public record UpdateTaskDto: BaseTaskDto
 {
-    [Required(ErrorMessage = "task id required")]
-    public Guid TaskId { get; }
+    [Range(1, TaskConstants.MaxLevel, ErrorMessage = "possible task difficulty level values: 1-9")]
+    public int? Level { get; set; }
+
+    [MinLength(TaskConstants.MinTitleLength, ErrorMessage = "required at least 1 character")]
+    [MaxLength(TaskConstants.MaxTitleLength, ErrorMessage = "too long title (256 max)")]
+    public string? Title { get; set; }
+}
+
+public record ApproveTaskDto
+{
+    [Range(1, TaskConstants.MaxLevel, ErrorMessage = "possible task difficulty level values: 1-9")]
+    public int? Level { get; set; }
 }
