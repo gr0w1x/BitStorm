@@ -4,7 +4,7 @@ using RabbitMQ.Client;
 
 namespace Users.HostedServices;
 
-public class UsersRabbitMqService: RabbitMqService
+public class UsersRabbitMqService: RabbitMqService<RabbitMqProvider>
 {
     public readonly string MailRequestQueue;
 

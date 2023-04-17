@@ -1,6 +1,6 @@
 using Blazored.LocalStorage;
 using Blazorise;
-using Blazorise.Bootstrap;
+using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
 using Fluxor;
 using Markdig;
@@ -27,14 +27,14 @@ builder.Services.AddFluxor(options =>
 
 builder.Services
     .AddBlazorise(options => options.Immediate = true)
-    .AddBootstrapProviders()
+    .AddBootstrap5Providers()
     .AddFontAwesomeIcons();
 
 builder.Services.AddScoped<UserMiddleware>();
 
 builder.Services.AddBlazoredLocalStorage();
 
-builder.Services.AddScoped<ApiClient>(sp =>
+builder.Services.AddScoped(sp =>
     new ApiClient(sp.GetRequiredService<IState<UserState>>(), sp.GetRequiredService<IDispatcher>())
     {
         BaseAddress = new Uri(builder.Configuration["ApiUri"]!)

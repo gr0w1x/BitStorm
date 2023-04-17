@@ -13,6 +13,14 @@ button:focus {
     border-color: var(--text);
 }
 
+.dropdown-toggle {
+    width: 100%;
+}
+
+.content {
+    flex-basis: 100%;
+}
+
 ul {
     background-color: var(--background-alt);
 }
@@ -27,4 +35,16 @@ ul {
 
 ::deep .select {
     display: none;
+}
+
+.select-button {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    align-items: center;
+}
+
+.dropdown-menu {
+    max-height: 30vh;
+    overflow-y: auto;
 }

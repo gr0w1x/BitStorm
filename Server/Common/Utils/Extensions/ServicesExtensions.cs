@@ -1,6 +1,6 @@
+using CommonServer.Asp.AuthorizationHandlers;
 using CommonServer.Asp.HostedServices;
 using CommonServer.Data.Types;
-using Gateway.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -21,24 +21,25 @@ public static class ServicesExtensions
     public static IServiceCollection AddJwtAuth(this IServiceCollection services, JwtOptions jwtOptions)
     {
         services.AddSingleton(jwtOptions);
+        var builder = (JwtBearerOptions options) =>
+        {
+            options.SaveToken = true;
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = jwtOptions.Key,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidIssuer = jwtOptions.Issuer,
+                ValidAudience = jwtOptions.Audience,
+                ClockSkew = TimeSpan.Zero
+            };
+        };
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddScheme<JwtBearerOptions, JwtBearerAdsToContextHandler>(
                 JwtBearerDefaults.AuthenticationScheme,
-                (options) =>
-                {
-                    options.SaveToken = true;
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = jwtOptions.Key,
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidIssuer = jwtOptions.Issuer,
-                        ValidAudience = jwtOptions.Audience,
-                        ClockSkew = TimeSpan.Zero
-                    };
-                }
+                builder
             );
         return services;
     }

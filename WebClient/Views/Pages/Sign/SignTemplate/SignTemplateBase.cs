@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Components;
 using WebClient.Store.Common;
 using WebClient.Typing;
 using WebClient.Views.Components;

@@ -1,0 +1,101 @@
+@page "/tasks/{taskId}/update"
+
+@using WebClient.Store.Pages.TaskPage
+@using WebClient.Views.Components
+@using WebClient.Views.Components.TaskCard
+@using WebClient.Views.Components.CircleSpinner
+@using WebClient.Views.Components.Status
+@using Microsoft.AspNetCore.Components.Forms
+@using WebClient.Views.Components.InputWrapper
+@using WebClient.Views.Components.OneLineInput
+@using WebClient.Views.Components.NumberInput
+@using WebClient.Views.Components.SelectInput
+@using WebClient.Views.Components.Button
+@using WebClient.Views.Components.MarkdownEditor
+@using WebClient.Views.Pages.Tasks.TaskFormTemplate
+@using WebClient.Store.Pages.UpdateTaskPage
+
+@inherits TaskFormTemplateBase<UpdateTaskPageState, UpdateTaskDtoWithTagsSeparated>
+
+<PageTitle>BitStorm - Update Task</PageTitle>
+
+@if (ComponentState.Value.Task != null)
+{
+    <TaskFormTemplate
+        TState="UpdateTaskPageState"
+        Context="@_context"
+        State="@ComponentState.Value"
+        CanSubmit="@CanSubmit"
+        OnSubmit="@OnSubmit">
+        <Title>Update Task</Title>
+        <Inputs>
+            <InputWrapper Title="Title" For="@(() => _dto.Title)">
+                <OneLineInput
+                    id="title"
+                    placeholder="Type title ..."
+                    disabled="@(!CanEdit)"
+                    @bind-Value="_dto.Title" />
+            </InputWrapper>
+            <InputWrapper Title="Level" For="@(() => _dto.Level)">
+                <NumberInput
+                    id="level"
+                    step="1" min="1" max="9"
+                    disabled="@(!CanEdit)"
+                    @bind-Value="_dto.Level" />
+            </InputWrapper>
+            <InputWrapper Title="Tags (separated by comma)" For="@(() => _dto.TagsSeparated)">
+                <OneLineInput
+                    id="tags-separated"
+                    placeholder="problem, math, algorithms, ..."
+                    disabled="@(!CanEdit)"
+                    @bind-Value="_dto.TagsSeparated" />
+            </InputWrapper>
+        </Inputs>
+        <Markdown>
+            <InputWrapper Title="Description" For="@(() => _dto.Description)">
+                <MarkdownEditor
+                    Placeholder="Type description..."
+                    @bind-Value="_dto.Description" />
+            </InputWrapper>
+        </Markdown>
+        <SubmitButtonContent>
+            UPDATE
+        </SubmitButtonContent>
+    </TaskFormTemplate>
+}
+else
+{
+    @switch(ComponentState.Value.UxState)
+    {
+        case UxState.Success:
+        {
+            <div class="center-grid">
+                <ResultStatus Icon="fa-solid fa-5x fa-circle-question" Title="No task found" />
+            </div>
+            break;
+        }
+        case UxState.Error:
+        {
+            <div class="center-grid">
+                <OoopsStatus>
+                    @ComponentState.Value.ServerError
+                </OoopsStatus>
+            </div>
+            break;
+        }
+        case UxState.Loading:
+        {
+            <div class="center-grid">
+                <CircleSpinner />
+            </div>
+            break;
+        }
+    }
+}
+
+@code {
+    TaskVisibility[] Visibilities => Enum.GetValues<TaskVisibility>();
+
+    [Parameter]
+    public string? TaskId { get; set; }
+}

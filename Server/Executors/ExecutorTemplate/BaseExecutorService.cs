@@ -1,16 +1,17 @@
 using System.Text;
 using System.Text.Json;
+using CommonServer.Constants;
 using CommonServer.Asp.HostedServices;
-using CommonServer.Data.Messages;
 using CommonServer.Utils.Extensions;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using Types.Dtos;
 using Types.Languages;
 
 namespace ExecutorTemplate;
 
-public abstract class BaseExecutorService<T>: RabbitMqService
+public abstract class BaseExecutorService<T>: RabbitMqService<RabbitMqProvider>
 {
     private readonly ILogger<BaseExecutorService<T>> _logger;
 
@@ -25,7 +26,9 @@ public abstract class BaseExecutorService<T>: RabbitMqService
 
     protected override void OnModeling(IModel model)
     {
-        var queue = CodeLanguages.VersionsByType[typeof(T)].Version;
+        var version = CodeLanguages.VersionsByType[typeof(T)];
+
+        var queue = RabbitMqQueries.ExecutorQuery(version.Language, version.Version);
 
         model.ExecutorQueueDeclare(queue, true);
 
@@ -42,13 +45,11 @@ public abstract class BaseExecutorService<T>: RabbitMqService
 
         var props = e.BasicProperties;
         var message = Encoding.UTF8.GetString(e.Body.ToArray());
-        ExecuteCodeMessage? execute = JsonSerializer.Deserialize<ExecuteCodeMessage>(message);
-
-        model.BasicAck(deliveryTag: e.DeliveryTag, multiple: false);
+        ExecuteCodeDto? execute = JsonSerializer.Deserialize<ExecuteCodeDto>(message);
 
         if (execute != null)
         {
-            ExecuteCodeResultMessage result = await ExecuteCode(execute);
+            ExecuteCodeResultDto result = await ExecuteCode(execute);
             var response = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(result));
             var replyProps = model.CreateBasicProperties();
             replyProps.CorrelationId = props.CorrelationId;
@@ -61,5 +62,5 @@ public abstract class BaseExecutorService<T>: RabbitMqService
         }
     }
 
-    protected abstract Task<ExecuteCodeResultMessage> ExecuteCode(ExecuteCodeMessage code);
+    protected abstract Task<ExecuteCodeResultDto> ExecuteCode(ExecuteCodeDto code);
 }

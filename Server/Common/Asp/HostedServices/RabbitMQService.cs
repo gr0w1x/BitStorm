@@ -10,16 +10,17 @@ public class RabbitMqProvider
     public IModel? Model { get; set; }
 }
 
-public abstract class RabbitMqService: IHostedService
+public abstract class RabbitMqService<TProvider>: IHostedService
+    where TProvider: RabbitMqProvider
 {
     private readonly IConnectionFactory _factory;
-    private readonly ILogger<RabbitMqService> _logger;
-    protected readonly RabbitMqProvider Provider;
+    private readonly ILogger<RabbitMqService<TProvider>> _logger;
+    protected readonly TProvider Provider;
 
     protected RabbitMqService(
         IConnectionFactory factory,
-        ILogger<RabbitMqService> logger,
-        RabbitMqProvider provider
+        ILogger<RabbitMqService<TProvider>> logger,
+        TProvider provider
     )
     {
         _factory = factory;

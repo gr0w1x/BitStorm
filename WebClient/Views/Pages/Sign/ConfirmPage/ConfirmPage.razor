@@ -5,32 +5,33 @@
 @using WebClient.Extensions
 @using WebClient.Views.Components
 @using WebClient.Views.Components.CircleSpinner
-@using WebClient.Views.Components.ResultStatus
+@using WebClient.Views.Components.Status
 @using WebClient.Store.Common
 @using WebClient.Store.User
 @using WebClient.Services
 @inherits WebClient.Views.Components.PageComponent<ConfirmPageState>
 
+<PageTitle>BitStorm - Confirm Account</PageTitle>
+
 <div>
     @if(ComponentState.Value.UxState.Is(UxState.Error))
     {
-        <ResultStatus Icon="fa-solid fa-5x fa-circle-exclamation" Title="Ooops!">
+        <OoopsStatus>
             @ComponentState.Value.ServerError <br>
             <a class="caption right-align" @onclick="NavigateRedirect">main page</a>
-        </ResultStatus>
+        </OoopsStatus>
     }
     else if(ComponentState.Value.UxState.Is(UxState.Success))
     {
         <ResultStatus Icon="fa-solid fa-5x fa-check-circle" Title="Confirmed!">
-            Redirect you to main page...
+            Redirect you to main page ...
         </ResultStatus>
     }
     else
     {
-        <ResultStatus>
-            <CircleSpinner Size="50px" />
-            Confirming account...
-        </ResultStatus>
+        <LoadingStatus>
+            Confirming account ...
+        </LoadingStatus>
     }
 </div>
 

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using Ocelot.WebSockets.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,10 +53,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseDefaultCors();
-
 app.UseRouting();
+app.UseWebSockets();
 app.MapControllers();
 
 await app.UseOcelot();
+
+app.UseDefaultExceptionHandler();
 
 app.Run();

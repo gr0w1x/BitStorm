@@ -1,0 +1,13 @@
+.sort {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+::deep .sort-button {
+    border-radius: 5px;
+    width: 25px;
+    height: 25px;
+}

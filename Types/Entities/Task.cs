@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Types.Entities;
 
@@ -9,35 +10,28 @@ public enum TaskVisibility
     Public
 }
 
-public interface ITask: IHasId
+public interface ITask: IHasId, ICreated, IUpdated
 {
     string Title { get; set; }
     string? Description { get; set; }
 
     Guid AuthorId { get; }
 
-    List<UserIdRecord> Likes { get; set; }
+    int Likes { get; set; }
 
     int Level { get; set; }
     bool Beta { get; set; }
 
-    string[] Tags { get; set; }
+    List<TaskTag> Tags { get; set; }
 
     TaskVisibility Visibility { get; set; }
+
+    ICollection<TaskImplementation> Implementations { get; set; }
 }
 
-public interface ITaskImplementation
+public interface ITaskTag: IHasId<string>
 {
-    Guid TaskId { get; }
-    string LanguageVersionId { get; }
-
-    string InitialSolution { get; set; }
-    string CompleteSolution { get; set; }
-
-    string PreloadedCode { get; set; }
-
-    string ExampleTests { get; set; }
-    string Tests { get; set; }
+    List<Task_> Tasks { get; set; }
 }
 
 public static class TaskConstants
@@ -63,7 +57,7 @@ public record Task_: ITask, ICreated, IUpdated
     [Required]
     public Guid AuthorId { get; set; }
 
-    public List<UserIdRecord> Likes { get; set; }
+    public int Likes { get; set; }
 
     [Required]
     [MinLength(TaskConstants.MinTitleLength)]
@@ -79,10 +73,43 @@ public record Task_: ITask, ICreated, IUpdated
     [Required]
     public bool Beta { get; set; }
 
-    public string[] Tags { get; set; } = Array.Empty<string>();
+    public List<TaskTag> Tags { get; set; } = new List<TaskTag>();
 
     public TaskVisibility Visibility { get; set; } = TaskVisibility.Private;
 
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
+
+    public ICollection<TaskImplementation> Implementations { get; set; }
+
+    public bool IsVisible(IUser? user) =>
+        Visibility == TaskVisibility.Public ||
+        (
+            Visibility == TaskVisibility.Private && user != null && (
+                (AuthorId == user.Id) ||
+                ((user.Roles & UserRoles.Admin) != UserRoles.None)
+            )
+        );
+
+    public bool CanUpdate(IUser user) =>
+        AuthorId == user.Id;
+
+    public bool CanDelete(IUser user) =>
+        CanUpdate(user) || ((user.Roles & UserRoles.Admin) != UserRoles.None);
+
+    public bool CanPublish(IUser user) =>
+        CanUpdate(user);
+
+    public bool CanApprove(IUser user) =>
+        (user.Roles & (UserRoles.Admin | UserRoles.Moderator)) != UserRoles.None &&
+        AuthorId != user.Id;
+}
+
+public record TaskTag: ITaskTag
+{
+    [Key]
+    public string Id { get; set; }
+
+    [JsonIgnore]
+    public List<Task_> Tasks { get; set; } = new List<Task_>();
 }

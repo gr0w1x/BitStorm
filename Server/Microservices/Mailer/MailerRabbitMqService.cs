@@ -12,7 +12,7 @@ using CommonServer.Utils.Extensions;
 
 namespace Mailer;
 
-public class MailerRabbitMqService: RabbitMqService
+public class MailerRabbitMqService: RabbitMqService<RabbitMqProvider>
 {
     private readonly ILogger<MailerRabbitMqService> _logger;
     private readonly IConfiguration _configuration;

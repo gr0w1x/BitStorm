@@ -1,0 +1,123 @@
+@typeparam T
+
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+@foreach (var item in _items)
+{
+    @ItemTemplate(item)
+}
+@if (_loading)
+{
+    @LoadingTemplate
+}
+<div @ref="_observerElementRef" style="height:1px;flex-shrink:0" />
+
+@code {
+    private List<T> _items = new();
+    private bool _loading = false;
+    private bool _completed = false;
+
+    private ElementReference _observerElementRef;
+    private IJSObjectReference _observerRef;
+
+    private DotNetObjectReference<InfiniteLoaderList<T>> _thisRef;
+
+    private CancellationTokenSource _cancelTokenSource;
+
+    [Parameter]
+    public Loader LoadMore { get; set; }
+
+    public delegate Task<IEnumerable<T>> Loader(int skip, CancellationToken token);
+
+    [Parameter]
+    public RenderFragment<T> ItemTemplate { get; set; }
+    
+    [Parameter]
+    public RenderFragment LoadingTemplate { get; set; }
+
+    [JSInvokable]
+    public async Task LoadNext()
+    {
+        if (_loading || _completed)
+        {
+            return;
+        }
+
+        _loading = true;
+
+        try
+        {
+            _cancelTokenSource ??= new CancellationTokenSource();
+
+            StateHasChanged();
+
+            try
+            {
+                var newItems = (await LoadMore(_items.Count, _cancelTokenSource.Token)).ToArray();
+                if (newItems.Length == 0)
+                {
+                    _completed = true;
+                }
+                else
+                {
+                    _items.AddRange(newItems);
+                    await _observerRef.InvokeVoidAsync("onNewItems");
+                }
+            }
+            catch (OperationCanceledException oce) when (oce.CancellationToken == _cancelTokenSource.Token) { }
+        }
+        finally
+        {
+            _loading = false;
+        }
+
+        StateHasChanged();
+    }
+
+    public async Task Clear()
+    {
+        if (_loading)
+        {
+            _cancelTokenSource.Cancel();
+            _cancelTokenSource.Dispose();
+            _cancelTokenSource = new CancellationTokenSource();
+        }
+        _items = new ();
+        _completed = false;
+        _loading = false;
+        await _observerRef.InvokeVoidAsync("onNewItems");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _thisRef = DotNetObjectReference.Create(this);
+            _observerRef = await JSRuntime.InvokeAsync<IJSObjectReference>(
+                "initializeInfiniteScrolling",
+                _observerElementRef,
+                _thisRef,
+                "LoadNext"
+            );
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_cancelTokenSource != null)
+        {
+            _cancelTokenSource.Dispose();
+            _cancelTokenSource = null;
+        }
+
+        if (_observerRef != null)
+        {
+            await _observerRef.InvokeVoidAsync("dispose");
+            await _observerRef.DisposeAsync();
+            _observerRef = null;
+        }
+
+        _thisRef?.Dispose();
+    }
+}

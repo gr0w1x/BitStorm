@@ -1,5 +1,4 @@
 using Fluxor;
-using Types.Dtos;
 using WebClient.Models;
 using WebClient.Store.Common;
 using WebClient.Typing;
@@ -11,5 +10,5 @@ public record TaskPageState: BaseUxServerErrorState<TaskPageState>
 {
     public override UxState InitialState => UxState.Idle;
 
-    public TaskCardModel? Task { get; set; }
+    public TaskCardModel? TaskModel { get; set; }
 }

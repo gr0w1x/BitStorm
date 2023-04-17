@@ -66,9 +66,17 @@ body,
     --control: #7d90d3;
     --surface: #12354b;
 
+    --info-text: #9CAEF0;
+    --info-control: #7d90d3;
+    --info-surface: #12354b;
+
     --success-text: #58EA6F;
     --success-control: #37AB4A;
     --success-surface: #0e3a15;
+
+    --warning-text: #0c1400;
+    --warning-control: #070c00;
+    --warning-surface: #9bdd44;
 
     --error-text: #E95679;
     --error-control: #AB374C;
@@ -83,13 +91,21 @@ body,
     --control: #555;
     --surface: #ccc;
 
-    --success-text: #58EA6F;
-    --success-control: #37AB4A;
-    --success-surface: #0e3a15;
+    --info-text: #273f96;
+    --info-control: #172a6e;
+    --info-surface: #72aacc;
 
-    --error-text: #E95679;
-    --error-control: #AB374C;
-    --error-surface: #44131b;
+    --success-text: #219333;
+    --success-control: #287f37;
+    --success-surface: #84cb8f;
+
+    --warning-text: #0c1400;
+    --warning-control: #070c00;
+    --warning-surface: #9bdd44;
+
+    --error-text: #dd375e;
+    --error-control: #792534;
+    --error-surface: #e06579;
 }
 
 h1,
@@ -146,6 +162,9 @@ img.no-select {
 }
 .error {
     color: var(--error-text);
+}
+.success {
+    color: var(--success-text);
 }
 
 *,
@@ -223,4 +242,61 @@ button.filled:focus {
 }
 button.caption {
     letter-spacing: normal;
+}
+
+.center-grid {
+    display: grid;
+    align-items: center;
+    align-content: center;
+    justify-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.modal-content {
+    background-color: var(--surface);
+}
+
+.modal-header {
+    border-bottom: none;
+}
+
+.modal-footer {
+    border-top: none;
+}
+
+.snackbar {
+    border-radius: 15px;
+}
+.snackbar-info {
+    color: var(--info-text);
+    border-color: var(--info-control);
+    background-color: var(--info-surface);
+}
+.snackbar-action-button-info {
+    color: var(--info-text);
+}
+.snackbar-success {
+    color: var(--success-text);
+    border-color: var(--success-control);
+    background-color: var(--success-surface);
+}
+.snackbar-action-button-success {
+    color: var(--success-text);
+}
+.snackbar-warning {
+    color: var(--warning-text);
+    border-color: var(--warning-control);
+    background-color: var(--warning-surface);
+}
+.snackbar-action-button-warning {
+    color: var(--warning-text);
+}
+.snackbar-danger {
+    color: var(--error-text);
+    border-color: var(--error-control);
+    background-color: var(--error-surface);
+}
+.snackbar-action-button-danger {
+    color: var(--error-text);
 }

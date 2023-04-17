@@ -21,17 +21,17 @@ public abstract class DbContextRepository<TEntity, TContext, TKey>: IRepository<
     public virtual async Task<TEntity?> GetById(TKey id) =>
         await Entities.FindAsync(id);
 
-    public async Task<IEnumerable<TEntity>> Select(int? skip, int? take) =>
+    public virtual async Task<IEnumerable<TEntity>> Select(int? skip, int? take) =>
         await Entities.SkipAndTake(skip, take).ToListAsync();
 
-    public Task Create(params TEntity[] entities) => Entities.AddRangeAsync(entities);
+    public virtual Task Create(params TEntity[] entities) => Entities.AddRangeAsync(entities);
 
-    public Task Update(params TEntity[] entities)
+    public virtual Task Update(params TEntity[] entities)
     {
         Entities.UpdateRange(entities);
         return Task.CompletedTask;
     }
-    public Task Delete(params TEntity[] entities)
+    public virtual Task Delete(params TEntity[] entities)
     {
         Entities.RemoveRange(entities);
         return Task.CompletedTask;

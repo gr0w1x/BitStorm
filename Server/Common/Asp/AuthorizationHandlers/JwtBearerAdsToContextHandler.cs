@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 using Types.Dtos;
 using Types.Entities;
 
-namespace Gateway.Services;
+namespace CommonServer.Asp.AuthorizationHandlers;
 
 public class JwtBearerAdsToContextHandler: JwtBearerHandler
 {
@@ -31,9 +31,9 @@ public class JwtBearerAdsToContextHandler: JwtBearerHandler
 
         try
         {
-            Guid id = Guid.Parse(result.Principal.Claims.First<Claim>(claim => claim.Type == "id").Value);
-            UserRoles roles = (UserRoles)Convert.ToInt32(result.Principal.Claims.First<Claim>(claim => claim.Type == ClaimTypes.Role).Value);
-            int trophies = Convert.ToInt32(result.Principal.Claims.First<Claim>(claim => claim.Type == "trophies").Value);
+            Guid id = Guid.Parse(result.Principal.Claims.First(claim => claim.Type == "id").Value);
+            UserRoles roles = (UserRoles)Convert.ToInt32(result.Principal.Claims.First(claim => claim.Type == ClaimTypes.Role).Value);
+            int trophies = Convert.ToInt32(result.Principal.Claims.First(claim => claim.Type == "trophies").Value);
 
             Context.Items[UserItem] = new AccessJwtTokenContent(id, roles, trophies);
 

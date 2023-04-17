@@ -23,6 +23,6 @@ public static class TaskPageReducers
     public static TaskPageState SetTask(TaskPageState state, SetTaskAction action) =>
         state with
         {
-            Task = action.Task
+            TaskModel = action.Task
         };
 }

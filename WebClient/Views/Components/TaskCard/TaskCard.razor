@@ -2,23 +2,31 @@
 @using WebClient.Models
 @using WebClient.Constants
 @using WebClient.Views.Components.Rank
+@using WebClient.Extensions
+
+@inject Navigation Navigation
 
 <div class="task-card">
     <h3 class="title">
         <span class="caption">
-            <Rank Value="@Model.TaskDto.Task.Level" />
+            <Rank Value="@Model.Task.Level" />
         </span>
-        @Model.TaskDto.Task.Title
+        @if (HasLink) {
+            <a @onclick="@(() => Navigation.NavigateTo(Routes.TaskPage(@Model.Task.Id)))">
+                @Model.Task.Title
+            </a>
+        } else {
+            @Model.Task.Title
+        }
     </h3>
     <div class="labels">
         <span class="label">
             <i class="fa-regular fa-star" />
-            @Model.TaskDto.Likes
-            likes
+            @Model.Task.Likes
         </span>
         <span class="label">
             <i class="fa-solid fa-user"></i>
-            by
+            By
             @if(_loaded)
             {
                 @if (Model.Author == null)
@@ -27,25 +35,49 @@
                 }
                 else
                 {
-                    <a href="@Routes.UserPage(Model.Author.Id)">
+                    <a @onclick="@(() => Navigation.NavigateTo(Routes.UserPage(Model.Author.Id)))">
                         @Model.Author.Username
                     </a>
                 }
             }
         </span>
-    </div>
-    <div class="tags caption">
-        <i class="fa-solid fa-tag"></i>
-        @foreach (var tag in Model.TaskDto.Task.Tags)
+        @if (@Model.Task.Beta)
         {
-            <span class="tag">@tag</span>
+            <span class="label">
+                <i class="fa-solid fa-flask" />
+                Beta
+            </span>
+        }
+        <span class="label">
+            <i class="fa-regular fa-calendar"></i>
+            Created: @Model.Task.CreatedAt.DefaultFormat()
+        </span>
+        @if (@Model.Task.UpdatedAt != null)
+        {
+            <span class="label">
+                <i class="fa-regular fa-calendar"></i>
+                Updated: @Model.Task.UpdatedAt.Value.DefaultFormat()
+            </span>
         }
     </div>
+    @if (Model.Task.Tags.Any())
+    {
+        <div class="tags caption">
+            <i class="fa-solid fa-tag"></i>
+            @foreach (var tag in Model.Task.Tags)
+            {
+                <span class="tag">@tag.Id</span>
+            }
+        </div>
+    }
 </div>
 
 @code {
     [Parameter]
     public TaskCardModel Model { get; set; }
+
+    [Parameter]
+    public bool HasLink { get; set; } = false;
 
     [Inject]
     public UsersService UsersService { get; set; }
@@ -62,7 +94,7 @@
     {
         try
         {
-            Model.Author = await UsersService.GetUser(Model.TaskDto.Task.AuthorId);
+            Model.Author = await UsersService.Get(Model.Task.AuthorId);
             StateHasChanged();
         }
         catch { }

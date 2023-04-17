@@ -1,0 +1,27 @@
+@code {
+    [Parameter]
+    public RenderFragment? Icon { get; set; }
+
+    [Parameter]
+    public RenderFragment? Content { get; set; }
+
+    [Parameter]
+    public RenderFragment? Title { get; set; }
+}
+
+<div class="status">
+    @if (Icon != null)
+    {
+        @Icon
+    }
+    @if (Title != null)
+    {
+        <h1>@Title</h1>
+    }
+    @if (Content != null)
+    {
+        <div class="content">
+            @Content
+        </div>
+    }
+</div>

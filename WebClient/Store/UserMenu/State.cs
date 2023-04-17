@@ -9,7 +9,7 @@ public record UserMenuState: IHasUxState
 {
     public UxState UxState { get; init; }
 
-    public UxState InitialState => UxState.Idle;
+    public UxState InitialState => UxState;
 
     public UserMenuState()
     {

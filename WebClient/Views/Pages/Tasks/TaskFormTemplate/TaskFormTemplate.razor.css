@@ -1,0 +1,40 @@
+.layout,
+::deep form,
+.task-template-layout {
+    height: 100%;
+}
+
+.layout,
+.task-template-layout,
+.task-template-layout div {
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+}
+
+@media screen and (max-width: 800px) {
+    .markdown {
+        padding-bottom: 25px;
+    }
+}
+
+@media screen and (min-width: 800px) {
+    .task-template-layout {
+        flex-direction: row;
+        gap: 25px;
+    }
+
+    .inputs {
+        flex-basis: 300px;
+        overflow: auto;
+    }
+
+    .markdown {
+        flex-grow: 1;
+    }
+
+    ::deep .markdown > :first-child {
+        flex-basis: 100%;
+        overflow: auto;
+    }
+}

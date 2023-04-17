@@ -1,0 +1,88 @@
+@page "/tasks/search/"
+@page "/tasks/search/{query}"
+
+@using WebClient.Views.Components.InfiniteLoaderList
+@using WebClient.Views.Components.CircleSpinner
+@using WebClient.Views.Components.TaskCard
+@using WebClient.Views.Components.Status
+@using WebClient.Views.Components
+
+@using WebClient.Store.Pages.TasksSearchPage
+
+@using WebClient.Models
+@using Types.Dtos
+
+@inherits PageComponent<TasksSearchPageState>
+
+<PageTitle>
+    BitStorm - @(
+        ComponentState.Value.UxState.Is(UxState.Loading)
+            ? "Tasks Search"
+            : $"{TasksInfo?.Total} Tasks found"
+    )
+</PageTitle>
+
+<div class="layout">
+    <div class="form">
+        <h1>Search tasks</h1>
+        <TasksSearchForm
+            GetTasksInfo="@GetTasksInfo"
+            SortStrategy="@SortStrategy"
+            SortInversed="@SortInversed"
+            GetTasksInfoChanged="@(async (value) => 
+            {
+                await LoadTasksInfo(value);
+            })"
+            SortStrategyChanged="async (value) =>
+            {
+                await ChangeSortStrategy(value, SortInversed);
+            }"
+            SortInversedChanged="async (value) =>
+            {
+                await ChangeSortStrategy(SortStrategy, value);
+            }"
+            TasksInfo="@TasksInfo"
+            Disabled="@Disabled"/>
+    </div>
+
+    <div class="tasks">
+        @switch(ComponentState.Value.UxState)
+        {
+            case UxState.Success:
+            {
+                <h2>@TasksInfo.Total Tasks found</h2>
+                <InfiniteLoaderList T="TaskCardModel" LoadMore="GetItems" @ref="tasksList">
+                    <ItemTemplate Context="item">
+                        <div class="card">
+                            <TaskCard Model="@item" HasLink="true" />
+                        </div>
+                    </ItemTemplate>
+                    <LoadingTemplate>
+                        <div class="center-grid">
+                            <CircleSpinner />
+                            @if (ComponentState.Value.ServerError != null)
+                            {
+                                <br> @ComponentState.Value.ServerError
+                            }
+                        </div>
+                    </LoadingTemplate>
+                </InfiniteLoaderList>
+                break;
+            }
+            case UxState.Loading:
+            {
+                <div class="center-grid">
+                    <CircleSpinner />
+                </div>
+                break;
+            }
+            case UxState.Error:
+            {
+                <OoopsStatus>
+                    @ComponentState.Value.ServerError
+                </OoopsStatus>
+                break;
+            }
+        }
+    </div>
+</div>
