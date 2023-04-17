@@ -1,0 +1,24 @@
+@using WebClient.Views.Components.Status;
+
+@code {
+    [Parameter]
+    public string? Icon { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Title { get; set; }
+}
+
+<Status>
+    <Icon>
+        <i class="@Icon" data-icon />
+    </Icon>
+    <Title>
+        @Title
+    </Title>
+    <Content>
+        @ChildContent
+    </Content>
+</Status>

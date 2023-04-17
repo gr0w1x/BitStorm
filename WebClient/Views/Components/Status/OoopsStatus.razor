@@ -1,0 +1,18 @@
+@using WebClient.Views.Components.Status;
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}
+
+<Status>
+    <Icon>
+        <i class="fa-solid fa-5x fa-circle-exclamation" data-icon />
+    </Icon>
+    <Title>
+        Ooops!
+    </Title>
+    <Content>
+        @ChildContent
+    </Content>
+</Status>

@@ -1,0 +1,16 @@
+@using WebClient.Views.Components.CircleSpinner;
+@using WebClient.Views.Components.Status;
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}
+
+<Status>
+    <Icon>
+        <CircleSpinner Size="50px" />
+    </Icon>
+    <Content>
+        @ChildContent
+    </Content>
+</Status>
