@@ -4,4 +4,9 @@
 <input @attributes="AdditionalAttributes" 
     class="@CssClass" 
     @bind="CurrentValueAsString" 
-    @bind:event="oninput" />
+    @bind:event="@BindEvent" />
+
+@code {
+    [Parameter]
+    public string BindEvent { get; set; } = "oninput";
+}
