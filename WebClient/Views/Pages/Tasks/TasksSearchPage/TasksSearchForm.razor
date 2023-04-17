@@ -1,0 +1,228 @@
+@using WebClient.Views.Components.OneLineInput
+@using WebClient.Views.Components.SelectInput
+@using WebClient.Views.Components.MultiSelectInput
+@using WebClient.Views.Components.LanguageSelect
+@using WebClient.Views.Components.InputWrapper
+@using WebClient.Views.Components.SectionButton
+@using WebClient.Views.Components.Rank
+@using Types.Languages
+
+<InputWrapper For="@(() => GetTasksInfo.Query)" Title="Query" WithValidation="false">
+    <OneLineInput
+        BindEvent="onchange"
+        Value="@Query"
+        ValueExpression="@(() => Query)"
+        ValueChanged="@(async (value) =>
+        {
+            _query = value;
+            var trimmed = _query.Trim();
+            await GetTasksInfoChanged.InvokeAsync(GetTasksInfo with
+            {
+                Query = !string.IsNullOrWhiteSpace(trimmed) ? trimmed : null
+            });
+        })"
+        disabled="@Disabled" />
+</InputWrapper>
+
+<InputWrapper For="@(() => CurrentLanguage)" Title="Language" WithValidation="false">
+    <SelectInput
+        TItem="@LanguageDto"
+        Items="@_languageItems.Values"
+        Value="@CurrentLanguage"
+        ValueExpression="@(() => CurrentLanguage)"
+        ValueChanged="@((value) => GetTasksInfoChanged.InvokeAsync(GetTasksInfo with
+            {
+                Languages = value == _all ? Array.Empty<string>() : new string[] { value.Code }
+            }))"
+        Disabled="@Disabled">
+        <RenderItem Context="language">
+            @language.Item?.Name
+        </RenderItem>    
+    </SelectInput>
+</InputWrapper>
+
+<InputWrapper For="@(() => GetTasksInfo.Status)" Title="Status" WithValidation="false">
+    <SelectInput
+        TItem="@GetTasksInfoDto.StatusOptions"
+        Items="@_statusOptionsItems"
+        Value="@GetTasksInfo.Status"
+        ValueExpression="@(() => GetTasksInfo.Status)"
+        ValueChanged="@((value) => GetTasksInfoChanged.InvokeAsync(GetTasksInfo with
+            {
+                Status = value
+            }))"
+        Disabled="@Disabled">
+        <RenderItem Context="status">
+            @switch (status.Item)
+            {
+                case GetTasksInfoDto.StatusOptions.OnlyBeta:
+                {
+                    <span>Beta</span>
+                    break;
+                }
+                case GetTasksInfoDto.StatusOptions.OnlyApproved:
+                {
+                    <span>Approved</span>
+                    break;
+                }
+                case GetTasksInfoDto.StatusOptions.All:
+                {
+                    <span>Approved & Beta</span>
+                    break;
+                }
+            }
+        </RenderItem>
+    </SelectInput>
+</InputWrapper>
+
+<InputWrapper For="@(() => GetTasksInfo.Levels)" Title="Ranks" WithValidation="false">
+    <MultiSelectInput
+        TItem="int"
+        Items="@_rankItems"
+        Values="@(GetTasksInfo.Levels ?? Array.Empty<int>())"
+        ValuesChanged="@(values => GetTasksInfoChanged.InvokeAsync(GetTasksInfo with
+            {
+                Levels = values.Any() ? values.ToArray() : null
+            }))"
+        Disabled="@Disabled">
+        <RenderMark Context="item">
+            <span>@item.Item rank</span>
+        </RenderMark>
+        <RenderItem Context="item">
+            <Rank Value="@item.Item" />
+        </RenderItem>
+        <RenderSelect>Select Ranks ...</RenderSelect>
+    </MultiSelectInput>
+</InputWrapper>
+
+<InputWrapper For="@(() => SortStrategy)" Title="Sort by" WithValidation="false">
+    <SelectInput
+        TItem="@GetTasksDto.SortStrategy"
+        Items="@_sortStrategies"
+        Values="@SortStrategy"
+        ValueExpression="@(() => SortStrategy)"
+        ValueChanged="@SortStrategyChanged"
+        Disabled="@Disabled">
+        <RenderItem Context="item">
+            @SortStrategyFormat(item.Item)
+        </RenderItem>
+        <RenderSelected Context="item">
+            <div class="sort">
+                <SectionButton
+                    class="sort-button"
+                    @onclick="OnInversedPressed">
+                    <i class="fa-solid @(SortInversed ? "fa-down-long" : "fa-up-long")" />
+                </SectionButton>
+                @SortStrategyFormat(item.Item)
+            </div>
+        </RenderSelected>
+    </SelectInput>
+</InputWrapper>
+
+<InputWrapper For="@(() => GetTasksInfo.Tags)" Title="Tags" WithValidation="false">
+    <MultiSelectInput
+        TItem="@string"
+        Items="@_tagsItems"
+        Values="@((GetTasksInfo.Tags ?? Array.Empty<string>()).Where(tag => TasksInfo.Tags.Keys.Contains(tag)))"
+        ValuesChanged="@(values => GetTasksInfoChanged.InvokeAsync(GetTasksInfo with
+            {
+                Tags = values.Any() ? values.ToArray() : null
+            }))"
+        Disabled="@Disabled">
+        <RenderSelect>
+            @if (_tagsItems.Any())
+            {
+                <span>
+                    Select tags ...
+                </span>
+            }
+            else
+            {
+                <span>
+                    No tags ...
+                </span>
+            }
+        </RenderSelect>
+        <RenderItem Context="item">
+            @item.Item (@TasksInfo.Tags[item.Item])
+        </RenderItem>
+    </MultiSelectInput>
+</InputWrapper>
+
+@code {
+    public static readonly int[] _rankItems = Enumerable.Range(1, 9).ToArray();
+
+    public static readonly LanguageDto _all = new()
+    {
+        Code = "all",
+        Name = "All Languages"
+    };
+
+    public static readonly Dictionary<string, LanguageDto> _languageItems =
+        new LanguageDto[] { _all }
+            .Concat(CodeLanguages.Languages)
+            .ToDictionary(language => language.Code);
+
+    public static readonly GetTasksInfoDto.StatusOptions[] _statusOptionsItems = new []
+    {
+        GetTasksInfoDto.StatusOptions.OnlyApproved,
+        GetTasksInfoDto.StatusOptions.OnlyBeta,
+        GetTasksInfoDto.StatusOptions.All
+    };
+
+    public static readonly GetTasksDto.SortStrategy[] _sortStrategies = new []
+    {
+        GetTasksDto.SortStrategy.LastUpdated,
+        GetTasksDto.SortStrategy.Name,
+        GetTasksDto.SortStrategy.Likes,
+        GetTasksDto.SortStrategy.Level,
+    };
+
+    private string? _query;
+    private string Query => _query ?? GetTasksInfo.Query ?? "";
+
+    private LanguageDto CurrentLanguage => GetTasksInfo.Languages?.Any() == true ? _languageItems[GetTasksInfo.Languages![0]] : _all;
+
+    private string[] _tagsItems => TasksInfo.Tags.Keys.ToArray();
+
+    [Parameter]
+    public GetTasksInfoDto GetTasksInfo { get; set; }
+    [Parameter]
+    public EventCallback<GetTasksInfoDto> GetTasksInfoChanged { get; set; }
+
+    [Parameter]
+    public GetTasksDto.SortStrategy SortStrategy { get; set; }
+    [Parameter]
+    public bool SortInversed { get; set; }
+
+    [Parameter]
+    public EventCallback<GetTasksDto.SortStrategy> SortStrategyChanged { get; set; }
+    [Parameter]
+    public EventCallback<bool> SortInversedChanged { get; set; }
+
+    [Parameter]
+    public TasksInfoDto TasksInfo { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    private string SortStrategyFormat(GetTasksDto.SortStrategy sortStrategy)
+    {
+        switch (sortStrategy)
+        {
+            case GetTasksDto.SortStrategy.LastUpdated:
+            {
+                return "Last Changes";
+            }
+            default:
+            {
+                return sortStrategy.ToString();
+            }
+        }
+    }
+
+    private async Task OnInversedPressed()
+    {
+        await SortInversedChanged.InvokeAsync(!SortInversed);
+    }
+}

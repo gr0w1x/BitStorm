@@ -1,12 +1,12 @@
 .layout,
 ::deep form,
-.create-task-layout {
+.task-template-layout {
     height: 100%;
 }
 
 .layout,
-.create-task-layout,
-.create-task-layout div {
+.task-template-layout,
+.task-template-layout div {
     display: flex;
     gap: 10px;
     flex-direction: column;
@@ -19,7 +19,7 @@
 }
 
 @media screen and (min-width: 800px) {
-    .create-task-layout {
+    .task-template-layout {
         flex-direction: row;
         gap: 25px;
     }

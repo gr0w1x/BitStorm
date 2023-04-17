@@ -1,0 +1,70 @@
+@using Blazorise
+@using Microsoft.AspNetCore.Components.Forms
+@using WebClient.Views.Components.InputWrapper
+@using WebClient.Views.Components.NumberInput
+
+@implements IDisposable
+
+<Modal @ref="approveModalRef">
+    <ModalContent Centered>
+        <EditForm EditContext="@_context" OnValidSubmit="@OnSubmit">
+            <ModalHeader>
+                <ModalTitle>
+                    Approve Task
+                </ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+                    <DataAnnotationsValidator />
+                    <InputWrapper Title="Level" For="@(() => Dto.Level)">
+                        <NumberInput
+                            id="level"
+                            step="1" min="1" max="9"
+                            @bind-Value="Dto.Level" />
+                    </InputWrapper>
+            </ModalBody>
+            <ModalFooter>
+                <WebClient.Views.Components.Button.Button @onclick="@(() => approveModalRef.Hide())">
+                    CANCEL
+                </WebClient.Views.Components.Button.Button>
+                <WebClient.Views.Components.Button.Button type="submit" disabled="@(!CanSubmit)">
+                    OK
+                </WebClient.Views.Components.Button.Button>
+            </ModalFooter>
+        </EditForm>
+    </ModalContent>
+</Modal>
+
+@code {
+    [Parameter]
+    public ApproveTaskDto Dto { get; set; }
+    [Parameter]
+    public EventCallback<EditContext> OnSubmit { get; set; }
+
+    private Modal approveModalRef;
+    private EditContext _context;
+
+    public Task Show() => approveModalRef?.Show() ?? Task.CompletedTask;
+    public Task Hide() => approveModalRef?.Hide() ?? Task.CompletedTask;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _context = new EditContext(Dto);
+        _context.OnFieldChanged += OnFieldChanged;
+    }
+
+    protected bool _canSubmit = true;
+    protected bool CanSubmit => _canSubmit;
+
+    protected virtual void OnFieldChanged(object? sender, EventArgs args)
+    {
+        _canSubmit = _context.Validate();
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        _context.OnFieldChanged -= OnFieldChanged;
+        GC.SuppressFinalize(this);
+    }
+}

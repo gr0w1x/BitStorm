@@ -1,17 +1,20 @@
 using Microsoft.AspNetCore.Components;
+using Newtonsoft.Json;
 using Types.Dtos;
-using WebClient.Constants;
+using Types.Entities;
 using WebClient.Services;
-using WebClient.Store.Common;
 using WebClient.Store.Pages.CreateTaskPage;
-using WebClient.Typing;
 using WebClient.Views.Components;
+using WebClient.Views.Pages.Tasks.TaskFormTemplate;
 
 namespace WebClient.Views.Pages.Tasks.CreateTaskPage;
 
 public record CreateTaskDtoWithTagsSeparated: CreateTaskDto
 {
+    [JsonIgnore]
     private string _tagsSeparated = string.Empty;
+
+    [JsonIgnore]
     public string TagsSeparated
     {
         get => _tagsSeparated;
@@ -24,47 +27,26 @@ public record CreateTaskDtoWithTagsSeparated: CreateTaskDto
             );
         }
     }
+
+    public CreateTaskDtoWithTagsSeparated()
+    {
+        Title = null;
+        SuggestedLevel = 9;
+        Visibility = TaskVisibility.Private;
+        Description = null;
+        Tags = Array.Empty<string>();
+    }
 }
 
-public partial class CreateTaskPage
+public partial class CreateTaskPage: TaskFormTemplateBase<CreateTaskPageState, CreateTaskDtoWithTagsSeparated>
 {
     [Inject]
     protected TasksService TasksService { get; set; }
 
     protected override PageAccessType PageAccess => PageAccessType.OnlyPrivate;
 
-    public virtual async Task OnSubmit()
+    public override async Task<Guid> Action() => (await TasksService.CreateTask(_dto with
     {
-        try
-        {
-            Dispatcher.Dispatch(new SetUxState<CreateTaskPageState>(
-                (ComponentState.Value.UxState
-                | UxState.Loading)
-                & ~UxState.Error
-                & ~UxState.Editable
-            ));
-            Dispatcher.Dispatch(new SetError<CreateTaskPageState>(null));
-
-            var task = await TasksService.CreateTask(_dto);
-
-            Dispatcher.Dispatch(new SetUxState<CreateTaskPageState>(
-                (ComponentState.Value.UxState
-                & ~UxState.Loading)
-                | UxState.Success
-            ));
-
-            Navigation.NavigateTo(Routes.TaskPage(task.Id));
-        }
-        catch (Exception ex)
-        {
-            Dispatcher.Dispatch(new SetUxState<CreateTaskPageState>(
-                (ComponentState.Value.UxState
-                & ~UxState.Loading)
-                | UxState.Editable
-                | UxState.Error
-            ));
-            Logger.LogError(ex, ex.Message);
-            Dispatcher.Dispatch(new SetError<CreateTaskPageState>(ex.Message.Length > 0 ? ex.Message : "Server error"));
-        }
-    }
+        Description = string.IsNullOrWhiteSpace(_dto.Description) ? null : _dto.Description
+    })).Id;
 }

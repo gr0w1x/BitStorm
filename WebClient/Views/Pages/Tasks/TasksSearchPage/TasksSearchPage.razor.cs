@@ -1,66 +1,130 @@
 using Types.Dtos;
-using Types.Languages;
-using Types.Entities;
 using WebClient.Models;
+using WebClient.Services;
+using Microsoft.AspNetCore.Components;
+using System.Text.Json;
+using WebClient.Store.Pages.TasksSearchPage;
+using WebClient.Store.Common;
+using WebClient.Typing;
+using WebClient.Extensions;
+using WebClient.Views.Components;
+using WebClient.Views.Components.InfiniteLoaderList;
+using WebClient.Constants;
+using System.Web;
 
 namespace WebClient.Views.Pages.Tasks.TasksSearchPage;
 
 public partial class TasksSearchPage
 {
-    private static readonly string[] _tagItems = new string[] {};
+    [Inject]
+    TasksService TasksService { get; set; }
 
-    private static readonly GetTasksInfoDto.StatusOptions[] _statusOptionsItems = new GetTasksInfoDto.StatusOptions[]
-    {
-        GetTasksInfoDto.StatusOptions.OnlyApproved,
-        GetTasksInfoDto.StatusOptions.OnlyBeta,
-        GetTasksInfoDto.StatusOptions.All
-    };
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "query")]
+    public string? Query { get; set; }
 
-    private static readonly int[] _rankItems = Enumerable.Range(1, 9).ToArray();
+    protected override PageAccessType PageAccess => PageAccessType.ForAll;
 
-    private static readonly LanguageDto _all = new LanguageDto()
-    {
-        Code = "all",
-        Name = "All Languages"
-    };
+    private InfiniteLoaderList<TaskCardModel> tasksList;
 
-    private LanguageDto CurrentLanguage => _languageItems[_dto.Languages!.First()];
-
-    private static readonly Dictionary<string, LanguageDto> _languageItems =
-        new LanguageDto[] { _all }
-            .Concat(CodeLanguages.Languages)
-            .ToDictionary(language => language.Code);
-
-    private GetTasksInfoDto _dto { get; set; } =
+    private GetTasksInfoDto GetTasksInfo { get; set; } =
         new GetTasksInfoDto()
         {
             Query = "",
-            Languages = new string[] { _all.Code },
+            Languages = Array.Empty<string>(),
             Status = GetTasksInfoDto.StatusOptions.All,
             Levels = Array.Empty<int>(),
             Tags = Array.Empty<string>()
         };
 
-    async Task<IEnumerable<TaskCardModel>> GetItems(int skip, CancellationToken token)
+    private TasksInfoDto TasksInfo { get; set; } = new TasksInfoDto()
     {
-        await Task.Delay(1000, token);
-        return Enumerable.Range(skip, 50).Select(id => new TaskCardModel() {
-            Task = new Task_() {
-                Title = $"Task # {id + 1}",
-                Level = (id % 9) + 1,
-                Beta = (id % 10) == 0,
-                Tags = new List<TaskTag>()
+        Total = 0,
+        Tags = new Dictionary<string, int>()
+    };
+
+    private GetTasksDto.SortStrategy SortStrategy { get; set; } = GetTasksDto.SortStrategy.LastUpdated;
+    private bool SortInversed { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        if (Query != null)
+        {
+            try
+            {
+                var dto = JsonSerializer.Deserialize<GetTasksDto>(HttpUtility.HtmlDecode(Query!))!;
+                GetTasksInfo = dto;
+                if (dto.Sort != null)
                 {
-                    new TaskTag() { Id = "Tag 1" },
-                    new TaskTag() { Id = "Tag 2" },
-                    new TaskTag() { Id = "Tag 3" },
-                },
-                Visibility = TaskVisibility.Public,
-                Likes = id * 100,
-                CreatedAt = DateTime.Now.AddDays(-3),
-                UpdatedAt = (id % 5) == 0 ? DateTime.Now.AddHours(-3) : null,
-                Implementations = new List<TaskImplementation> ()
+                    SortStrategy = dto.Sort.Value;
+                }
+                if (dto.Inversed != null)
+                {
+                    SortInversed = dto.Inversed.Value;
+                }
             }
-        });
+            catch { }
+        }
+        await LoadTasksInfo(GetTasksInfo);
+    }
+
+    private bool Disabled => ComponentState.Value.UxState.Is(UxState.Loading);
+
+    async Task LoadTasksInfo(GetTasksInfoDto dto)
+    {
+        try
+        {
+            Dispatcher.Dispatch(new SetUxState<TasksSearchPageState>(UxState.Loading));
+            GetTasksInfo = dto;
+            TasksInfo = await TasksService.GetTasksInfo(GetTasksInfo);
+            Navigation.NavigateTo(Routes.TasksSearchPageWith(GetTasks(0)));
+            Dispatcher.Dispatch(new SetUxState<TasksSearchPageState>(UxState.Success));
+        }
+        catch (Exception ex)
+        {
+            Dispatcher.Dispatch(new SetUxState<TasksSearchPageState>(UxState.Error));
+            Dispatcher.Dispatch(new SetError<TasksSearchPageState>(ex.Message));
+        }
+    }
+
+    async Task ChangeSortStrategy(GetTasksDto.SortStrategy strategy, bool inversed)
+    {
+        Dispatcher.Dispatch(new SetUxState<TasksSearchPageState>(UxState.Loading));
+        SortStrategy = strategy;
+        SortInversed = inversed;
+        Navigation.NavigateTo(Routes.TasksSearchPageWith(GetTasks(0)));
+        await tasksList.Clear();
+        Dispatcher.Dispatch(new SetUxState<TasksSearchPageState>(UxState.Success));
+    }
+
+    private GetTasksDto GetTasks(int skip) => new()
+    {
+        Query = GetTasksInfo.Query,
+        Status = GetTasksInfo.Status,
+        Languages = GetTasksInfo.Languages,
+        Levels = GetTasksInfo.Levels,
+        Tags = GetTasksInfo.Tags,
+        Sort = SortStrategy,
+        Inversed = SortInversed,
+        Skip = skip,
+        Take = 10
+    };
+
+    async Task<IEnumerable<TaskCardModel>> GetItems(int skip, CancellationToken _)
+    {
+        try
+        {
+            return (await TasksService.GetTasks(GetTasks(skip)))
+                .Select(task => new TaskCardModel()
+                {
+                    Task = task
+                });
+        }
+        catch (Exception ex)
+        {
+            Dispatcher.Dispatch(new SetError<TasksSearchPageState>(ex.Message));
+            return Array.Empty<TaskCardModel>();
+        }
     }
 }

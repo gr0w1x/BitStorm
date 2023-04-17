@@ -1,0 +1,67 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using WebClient.Views.Components
+@using WebClient.Store.Common;
+@using WebClient.Views.Components.Button
+@using WebClient.Views.Components.CircleSpinner
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? Title { get; set; }
+
+    [Parameter]
+    public RenderFragment? Inputs { get; set; }
+
+    [Parameter]
+    public RenderFragment? Markdown { get; set; }
+
+    [Parameter]
+    public RenderFragment? SubmitButtonContent { get; set; }
+
+    [Parameter]
+    public EditContext? Context { get; set; }
+
+    [Parameter]
+    public EventCallback<EditContext> OnSubmit { get; set; }
+
+    [Parameter]
+    public TState State { get; set; }
+
+    [Parameter]
+    public bool CanSubmit { get; set; }
+}
+
+@typeparam TState where TState: IHasUxState, IHasServerError
+
+<div class="layout">
+    <EditForm EditContext="@Context" OnValidSubmit="@OnSubmit">
+        <DataAnnotationsValidator />
+        <div class="task-template-layout">
+            <div class="inputs">
+                <h1>@Title</h1>
+                @Inputs
+            </div>
+            <div class="markdown">
+                @Markdown
+                @if (State.UxState.Is(UxState.Error))
+                {
+                    <span class="caption error right-align">
+                        @State.ServerError
+                    </span>
+                }
+                <Button
+                    type="submit"
+                    disabled="@(!CanSubmit)"
+                    class="filled">
+                    @if((State.UxState & UxState.Loading) != UxState.None)
+                    {
+                        <CircleSpinner Color="black" Count="8" Size="24px" />
+                    }
+                    @SubmitButtonContent
+                </Button>
+            </div>
+        </div>
+    </EditForm>
+</div>

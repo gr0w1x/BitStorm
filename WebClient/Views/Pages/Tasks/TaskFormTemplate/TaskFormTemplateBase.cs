@@ -1,23 +1,17 @@
+using WebClient.Constants;
 using WebClient.Store.Common;
 using WebClient.Typing;
 using WebClient.Views.Components;
 
-namespace WebClient.Views.Pages.Sign.SignTemplate;
+namespace WebClient.Views.Pages.Tasks.TaskFormTemplate;
 
-public abstract class SignTemplateBase<TState, TDto>: FormComponent<TState, TDto>
-    where TState: IHasUxState
+public abstract partial class TaskFormTemplateBase<TState, TDto>: FormComponent<TState, TDto>
+    where TState: IHasUxState, IHasServerError
     where TDto: new ()
 {
-    protected override PageAccessType PageAccess => PageAccessType.OnlyPublic;
+    public abstract Task<Guid> Action();
 
-    public override void Dispose()
-    {
-        Dispatcher.Dispatch(new SetError<TState>(null));
-        base.Dispose();
-        GC.SuppressFinalize(this);
-    }
-
-    protected abstract Task SubmitAction();
+    protected override PageAccessType PageAccess => PageAccessType.OnlyPrivate;
 
     public async Task OnSubmit()
     {
@@ -30,22 +24,27 @@ public abstract class SignTemplateBase<TState, TDto>: FormComponent<TState, TDto
                 & ~UxState.Editable
             ));
             Dispatcher.Dispatch(new SetError<TState>(null));
-            await SubmitAction();
+
+            var taskId = await Action();
+
             Dispatcher.Dispatch(new SetUxState<TState>(
                 (ComponentState.Value.UxState
                 & ~UxState.Loading)
                 | UxState.Success
             ));
+
+            Navigation.NavigateTo(Routes.TaskPage(taskId));
         }
         catch (Exception ex)
         {
-            Dispatcher.Dispatch(new SetError<TState>(ex.Message.Length > 0 ? ex.Message : "server error"));
             Dispatcher.Dispatch(new SetUxState<TState>(
                 (ComponentState.Value.UxState
                 & ~UxState.Loading)
                 | UxState.Editable
                 | UxState.Error
             ));
+            Logger.LogError(ex, ex.Message);
+            Dispatcher.Dispatch(new SetError<TState>(ex.Message.Length > 0 ? ex.Message : "Server error"));
         }
     }
 }

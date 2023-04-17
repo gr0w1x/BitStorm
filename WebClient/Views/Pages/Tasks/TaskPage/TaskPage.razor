@@ -1,49 +1,139 @@
 @page "/tasks/{taskId?}"
 
+@using Blazorise
 @using WebClient.Store.Pages.TaskPage
 @using WebClient.Views.Components
 @using WebClient.Views.Components.TaskCard
 @using WebClient.Views.Components.CircleSpinner
-@using WebClient.Views.Components.ResultStatus
+@using WebClient.Views.Components.Status
+@using WebClient.Views.Components.Button
 
 @inherits PageComponent<TaskPageState>
 
-@switch(ComponentState.Value.UxState)
+<PageTitle>
+    BitStorm - @(
+        ComponentState.Value.TaskModel == null
+            ? "Loading Task"
+            : ComponentState.Value.TaskModel.Task.Title
+    )
+</PageTitle>
+
+@if (ComponentState.Value.TaskModel != null)
 {
-    case UxState.Success:
+    <TaskCard Model="@ComponentState.Value.TaskModel" />
+    <div class="actions">
+        @if(UserState.Value.User != null)
+        {
+            <WebClient.Views.Components.Button.Button disabled="@(!Editable)">
+                SOLVE
+            </WebClient.Views.Components.Button.Button>
+            @if(ComponentState.Value.TaskModel.Task.Visibility != TaskVisibility.Public && ComponentState.Value.TaskModel.Task.CanPublish(UserState.Value.User))
+            {
+                <WebClient.Views.Components.Button.Button
+                    disabled="@(!Editable)"
+                    @onclick="@(() => publishModalRef?.Show())">
+                    PUBLISH
+                </WebClient.Views.Components.Button.Button>
+                <Modal @ref="publishModalRef">
+                    <ModalContent Centered>
+                        <ModalBody>
+                            Are you sure to publish this task? Then task published, it's impossible to hide it again
+                        </ModalBody>
+                        <ModalFooter>
+                            <WebClient.Views.Components.Button.Button @onclick="@(() => publishModalRef?.Hide())">
+                                CANCEL
+                            </WebClient.Views.Components.Button.Button>
+                            <WebClient.Views.Components.Button.Button @onclick="@PublishTask">
+                                OK
+                            </WebClient.Views.Components.Button.Button>
+                        </ModalFooter>
+                    </ModalContent>
+                </Modal>
+            }
+            @if (ComponentState.Value.TaskModel.Task.Beta && ComponentState.Value.TaskModel.Task.CanApprove(UserState.Value.User))
+            {
+                <WebClient.Views.Components.Button.Button
+                    disabled="@(!Editable)"
+                    @onclick="@(() => approveModalRef?.Show())">
+                    APPROVE
+                </WebClient.Views.Components.Button.Button>
+                <ApproveModal
+                    @ref="approveModalRef"
+                    Dto="@ApproveDto"
+                    OnSubmit="@(() => ApproveTask())" />
+            }
+            @if(ComponentState.Value.TaskModel.Task.CanUpdate(UserState.Value.User))
+            {
+                <WebClient.Views.Components.Button.Button
+                    disabled="@(!Editable)"
+                    @onclick="@(() => Navigation.NavigateTo(Routes.UpdateTaskPage(new Guid(TaskId))))">
+                    UPDATE
+                </WebClient.Views.Components.Button.Button>
+                <WebClient.Views.Components.Button.Button
+                    disabled="@(!Editable)"
+                    @onclick="@(() => Navigation.NavigateTo(Routes.TaskImplementationsPage(new Guid(TaskId))))">
+                    IMPLEMENTS
+                </WebClient.Views.Components.Button.Button>
+            }
+            @if(ComponentState.Value.TaskModel.Task.CanDelete(UserState.Value.User))
+            {
+                <WebClient.Views.Components.Button.Button
+                    disabled="@(!Editable)"
+                    @onclick="@(() => deleteModalRef.Show())">
+                    DELETE
+                </WebClient.Views.Components.Button.Button>
+                <Modal @ref="deleteModalRef">
+                    <ModalContent Centered>
+                        <ModalBody>
+                            Are you sure to delete this task? It's impossible to undo
+                        </ModalBody>
+                        <ModalFooter>
+                            <WebClient.Views.Components.Button.Button @onclick="@(() => deleteModalRef.Hide())">
+                                CANCEL
+                            </WebClient.Views.Components.Button.Button>
+                            <WebClient.Views.Components.Button.Button @onclick="@DeleteTask">
+                                OK
+                            </WebClient.Views.Components.Button.Button>
+                        </ModalFooter>
+                    </ModalContent>
+                </Modal>
+            }
+        }
+    </div>
+    @if (ComponentState.Value.TaskModel.Task?.Description != null)
     {
-        @if (ComponentState.Value.Task == null)
+        <div class="editor-preview">
+            @((MarkupString)Markdig.Markdown.ToHtml(ComponentState.Value.TaskModel.Task.Description!, MarkdownPipeline))
+        </div>
+    }
+}
+else
+{
+    switch (ComponentState.Value.UxState)
+    {
+        case UxState.Success:
         {
             <div class="center-grid">
                 <ResultStatus Icon="fa-solid fa-5x fa-circle-question" Title="No task found" />
             </div>
+            break;
         }
-        else
+        case UxState.Error:
         {
-            <TaskCard Model="@ComponentState.Value.Task" />
-            @if (ComponentState.Value.Task.Task.Description != null)
-            {
-                <div class="editor-preview">
-                    @((MarkupString)Markdig.Markdown.ToHtml(ComponentState.Value.Task.Task.Description!, MarkdownPipeline))
-                </div>
-            }
+            <div class="center-grid">
+                <OoopsStatus>
+                    @ComponentState.Value.ServerError                
+                </OoopsStatus>
+            </div>
+            break;
         }
-        break;
+        case UxState.Loading:
+        {
+            <div class="center-grid">
+                <CircleSpinner />
+            </div>
+            break;
+        }
     }
-    case UxState.Error:
-    {
-        <div class="center-grid">
-            <ResultStatus Icon="fa-solid fa-5x fa-circle-exclamation" Title="Ooops!">
-                @ComponentState.Value.ServerError <br>
-            </ResultStatus>
-        </div>
-        break;
-    }
-    case UxState.Loading:
-    {
-        <div class="center-grid">
-            <CircleSpinner />
-        </div>
-        break;
-    }
+
 }
