@@ -1,6 +1,6 @@
 using Blazored.LocalStorage;
 using Blazorise;
-using Blazorise.Bootstrap;
+using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
 using Fluxor;
 using Markdig;
@@ -27,7 +27,7 @@ builder.Services.AddFluxor(options =>
 
 builder.Services
     .AddBlazorise(options => options.Immediate = true)
-    .AddBootstrapProviders()
+    .AddBootstrap5Providers()
     .AddFontAwesomeIcons();
 
 builder.Services.AddScoped<UserMiddleware>();
