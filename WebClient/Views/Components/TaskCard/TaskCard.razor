@@ -2,13 +2,22 @@
 @using WebClient.Models
 @using WebClient.Constants
 @using WebClient.Views.Components.Rank
+@using WebClient.Extensions
+
+@inject Navigation Navigation
 
 <div class="task-card">
     <h3 class="title">
         <span class="caption">
             <Rank Value="@Model.Task.Level" />
         </span>
-        @Model.Task.Title
+        @if (HasLink) {
+            <a @onclick="@(() => Navigation.NavigateTo(Routes.TaskPage(@Model.Task.Id)))">
+                @Model.Task.Title
+            </a>
+        } else {
+            @Model.Task.Title
+        }
     </h3>
     <div class="labels">
         <span class="label">
@@ -17,7 +26,7 @@
         </span>
         <span class="label">
             <i class="fa-solid fa-user"></i>
-            by
+            By
             @if(_loaded)
             {
                 @if (Model.Author == null)
@@ -26,12 +35,30 @@
                 }
                 else
                 {
-                    <a href="@Routes.UserPage(Model.Author.Id)">
+                    <a @onclick="@(() => Navigation.NavigateTo(Routes.UserPage(Model.Author.Id)))">
                         @Model.Author.Username
                     </a>
                 }
             }
         </span>
+        @if (@Model.Task.Beta)
+        {
+            <span class="label">
+                <i class="fa-solid fa-flask" />
+                Beta
+            </span>
+        }
+        <span class="label">
+            <i class="fa-regular fa-calendar"></i>
+            Created: @Model.Task.CreatedAt.DefaultFormat()
+        </span>
+        @if (@Model.Task.UpdatedAt != null)
+        {
+            <span class="label">
+                <i class="fa-regular fa-calendar"></i>
+                Updated: @Model.Task.UpdatedAt.Value.DefaultFormat()
+            </span>
+        }
     </div>
     @if (Model.Task.Tags.Any())
     {
@@ -49,6 +76,9 @@
     [Parameter]
     public TaskCardModel Model { get; set; }
 
+    [Parameter]
+    public bool HasLink { get; set; } = false;
+
     [Inject]
     public UsersService UsersService { get; set; }
 
@@ -64,7 +94,7 @@
     {
         try
         {
-            Model.Author = await UsersService.GetUser(Model.Task.AuthorId);
+            Model.Author = await UsersService.Get(Model.Task.AuthorId);
             StateHasChanged();
         }
         catch { }

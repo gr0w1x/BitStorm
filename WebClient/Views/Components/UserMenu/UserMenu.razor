@@ -98,7 +98,6 @@
         base.OnInitialized();
         UserState.StateChanged += OnStateChanged;
         ThemeState.StateChanged += OnStateChanged;
-        RetryLoadUser();
     }
 
     public override void Dispose()
@@ -118,13 +117,11 @@
     {
         if (UserState.Value.Authorized)
         {
-            if (UserState.Value.User == null || UserState.Value.User.Id != UserState.Value.Tokens!.UserId)
-            {
-                Dispatcher.Dispatch(new LoadUserAction(UserState.Value.Tokens!.UserId));
-            }
+            Dispatcher.Dispatch(new LoadUserAction(UserState.Value.Tokens!.UserId));
         }
-        else if (!ComponentState.Value.UxState.Is(UxState.Success))
+        else if (UserState.Value.Initialized)
         {
+            Dispatcher.Dispatch(new SignOutAction());
             Dispatcher.Dispatch(new SetUxState<UserMenuState>(UxState.Success));
         }
     }

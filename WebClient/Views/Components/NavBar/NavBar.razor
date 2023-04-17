@@ -1,4 +1,7 @@
 @using WebClient.Views.Components.SectionButton
+@using WebClient.Services
+
+@inject Navigation Navigation
 
 <div class="toggle">
     <SectionButton
@@ -20,9 +23,10 @@
                 </SectionButton>
             </li>
             <li class="nav-item">
-                <SectionButton>
+                <SectionButton @onclick="@(() => Navigation.NavigateTo(Routes.TasksSearchPage))">
                     <i class="fa-solid fa-file-code" />
-                    <span class="content">
+                    <span
+                        class="content">
                         Tasks
                     </span>
                 </SectionButton>

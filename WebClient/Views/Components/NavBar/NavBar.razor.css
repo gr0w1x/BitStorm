@@ -74,7 +74,9 @@ nav {
         transition: transform 0.25s ease-in-out;
     }
     .toggle {
-        position: fixed;        
+        position: fixed;
+        background-color: var(--background-alt);
+        z-index: 100;
     }
     ::deep .toggle i {
         font-size: 30px;

@@ -10,6 +10,12 @@ span {
 	user-select: none;
 }
 
+.blue {
+	--text: var(--info-text);
+	--control: var(--info-control);
+	--surface: var(--info-surface);
+}
+
 .green {
 	--text: var(--success-text);
 	--control: var(--success-control);

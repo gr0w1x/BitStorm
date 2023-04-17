@@ -11,10 +11,7 @@
 {
     @LoadingTemplate
 }
-@if (!_completed)
-{
-    <div @ref="_observerElementRef" style="height:1px;flex-shrink:0" />
-}
+<div @ref="_observerElementRef" style="height:1px;flex-shrink:0" />
 
 @code {
     private List<T> _items = new();
@@ -76,6 +73,20 @@
         }
 
         StateHasChanged();
+    }
+
+    public async Task Clear()
+    {
+        if (_loading)
+        {
+            _cancelTokenSource.Cancel();
+            _cancelTokenSource.Dispose();
+            _cancelTokenSource = new CancellationTokenSource();
+        }
+        _items = new ();
+        _completed = false;
+        _loading = false;
+        await _observerRef.InvokeVoidAsync("onNewItems");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
