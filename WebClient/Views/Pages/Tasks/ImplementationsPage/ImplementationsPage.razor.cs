@@ -4,6 +4,7 @@ using Types.Dtos;
 using Types.Entities;
 using Types.Hubs;
 using Types.Languages;
+using WebClient.Constants;
 using WebClient.Extensions;
 using WebClient.Services;
 using WebClient.Store.Common;
@@ -76,12 +77,15 @@ public partial class ImplementationsPage: PageComponent<ImplementationsPageState
 
             Connection.Closed += OnConnectionClosed;
 
-            Connection.On<ExecuteCodeResultDto>(nameof(IExecutionsClient.OnImplementationCodeSaved),
+            Connection.On<ExecuteCodeResultDto>(nameof(IExecutionsHubClient.OnImplementationCodeSaved),
                 results =>
                 {
                     Dispatcher.Dispatch(new SetOutputAction(results));
                     Dispatcher.Dispatch(new SetUxState<ImplementationsPageState>(results.ExitStatus == 0 ? UxState.Success : UxState.Error));
                 }
+            );
+            Connection.On<ErrorDto>(nameof(IExecutionsHubClient.OnError),
+                async error => await NotificationService.Error(error.Message, SnackbarConstants.DefaultErrorHeader)
             );
 
             await OnConnectionClosed(null);
@@ -112,7 +116,7 @@ public partial class ImplementationsPage: PageComponent<ImplementationsPageState
         Dispatcher.Dispatch(new SetOutputAction(null));
         Dispatcher.Dispatch(new SetUxState<ImplementationsPageState>(UxState.Loading));
 
-        await Connection.SendAsync(nameof(IExecutionsServer.SaveImplementationCode), new SaveImplementationCodeDto()
+        await Connection.SendAsync(nameof(IExecutionsHubServer.SaveImplementationCode), new SaveImplementationCodeDto()
         {
             TaskId = new Guid(TaskId),
             Language = LanguageVersion.Language,
@@ -131,7 +135,7 @@ public partial class ImplementationsPage: PageComponent<ImplementationsPageState
         {
             Connection.Closed -= OnConnectionClosed;
             Connection.StopAsync(tokenSource.Token);
-            Connection.Remove(nameof(IExecutionsClient.OnImplementationCodeSaved));
+            Connection.Remove(nameof(IExecutionsHubClient.OnImplementationCodeSaved));
         }
         GC.SuppressFinalize(this);
         base.Dispose();

@@ -1,3 +1,4 @@
+using CommonServer.Asp.HostedServices;
 using CommonServer.Utils.Extensions;
 using Executions.HostedServices;
 using Executions.Hubs;
@@ -9,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
 // Builder services
+builder.Services.AddHostedService<SchedulerService>();
 
 // Auth
 builder.Services.AddJwtAuth(builder.Configuration.GetJwtOptions());

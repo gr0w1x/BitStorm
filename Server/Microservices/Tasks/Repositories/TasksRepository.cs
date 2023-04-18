@@ -115,8 +115,8 @@ public class TasksRepository:
             IOrderedQueryable<Task_>
         > sortStrategy = (
             (dto.Sort == GetTasksDto.SortStrategy.Name && dto.Sort == GetTasksDto.SortStrategy.Level)
-                ? ((IQueryable<Task_> query, Expression<Func<Task_, object>> key) => dto.Inversed ? query.OrderByDescending(key) : query.OrderBy(key))
-                : ((IQueryable<Task_> query, Expression<Func<Task_, object>> key) => dto.Inversed ? query.OrderBy(key) : query.OrderByDescending(key))
+                ? ((IQueryable<Task_> query, Expression<Func<Task_, object>> key) => (dto.Inversed ?? false) ? query.OrderByDescending(key) : query.OrderBy(key))
+                : ((IQueryable<Task_> query, Expression<Func<Task_, object>> key) => (dto.Inversed ?? false) ? query.OrderBy(key) : query.OrderByDescending(key))
         );
 
         Expression<Func<Task_, object>> mapper =

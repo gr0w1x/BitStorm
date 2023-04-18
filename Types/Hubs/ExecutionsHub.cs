@@ -3,13 +3,14 @@ using Types.Entities;
 
 namespace Types.Hubs;
 
-public interface IExecutionsClient
+public interface IExecutionsHubClient: ICommonHubClient
 {
+    public Task OnCodeExecuted(ExecuteCodeResultDto code);
     public Task OnImplementationCodeSaved(ExecuteCodeResultDto code);
     public Task OnTaskSolved(ExecuteCodeResultDto code);
 }
 
-public interface IExecutionsServer
+public interface IExecutionsHubServer
 {
     public Task SaveImplementationCode(SaveImplementationCodeDto taskImplementation);
     public Task SolveTask(SolveTaskDto solverTask);

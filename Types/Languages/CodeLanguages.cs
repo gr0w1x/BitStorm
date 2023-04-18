@@ -7,6 +7,7 @@ namespace Types.Languages;
 public static class CodeLanguages
 {
     public static readonly LanguageDto[] Languages;
+    public static readonly VersionDto[] Versions;
 
     public static readonly IDictionary<string, LanguageDto> LanguagesDictionary;
 
@@ -59,8 +60,14 @@ public static class CodeLanguages
         Languages =
             LanguagesByType.Values.ToArray();
 
+        Versions =
+            VersionsByType.Values.ToArray();
+
         LanguagesDictionary =
             Languages
                 .ToDictionary(language => language.Code);
     }
+
+    public static VersionDto? GetVersionDto(string language, string version)
+        => Array.Find(Versions, v => v.Language == language && v.Version == version);
 }

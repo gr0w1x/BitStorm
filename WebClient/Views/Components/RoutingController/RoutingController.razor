@@ -14,9 +14,11 @@
         </Found>
         <NotFound>
             <PageTitle>Not found</PageTitle>
-            <WebClient.Views.Components.OneLineInput.OneLineInput>
-                Page not found
-            </WebClient.Views.Components.OneLineInput.OneLineInput>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <WebClient.Views.Components.Status.OoopsStatus>
+                    Page not found
+                </WebClient.Views.Components.Status.OoopsStatus>
+            </LayoutView>
         </NotFound>
     </Router>
 }

@@ -18,6 +18,13 @@ public static class ServicesExtensions
         return collection;
     }
 
+    public static IServiceCollection AddScheduler(this IServiceCollection collection)
+    {
+        collection.AddSingleton<SchedulerService.SchedulerController>();
+        collection.AddHostedService<SchedulerService>();
+        return collection;
+    }
+
     public static IServiceCollection AddJwtAuth(this IServiceCollection services, JwtOptions jwtOptions)
     {
         services.AddSingleton(jwtOptions);
