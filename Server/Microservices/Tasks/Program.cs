@@ -1,6 +1,9 @@
+using CommonServer.Asp.HostedServices;
 using CommonServer.Data.Repositories;
 using CommonServer.Utils.Extensions;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Client;
+using Tasks.HostedServices;
 using Tasks.Repositories;
 using Tasks.Services;
 
@@ -20,10 +23,16 @@ builder.Services.AddDbContext<TasksContext>(
 // Auth
 builder.Services.AddJwtAuth(builder.Configuration.GetJwtOptions());
 
+// RabbitMq
+builder.Services.AddSingleton<IConnectionFactory>(new ConnectionFactory().DefaultRabbitMqConnection());
+builder.Services.AddSingleton<RabbitMqProvider>();
+builder.Services.AddHostedService<TasksRabbitMqService>();
+
 // Data layer
 builder.Services.AddScoped<IUnitOfWork, DbContextUnitOfWork<TasksContext>>();
 builder.Services.AddScoped<ITasksRepository, TasksRepository>();
 builder.Services.AddScoped<ITagsRepository, TagsRepository>();
+builder.Services.AddScoped<ITaskImplementationsRepository, TaskImplementationRepository>();
 
 // Service layer
 builder.Services.AddScoped<TasksService>();

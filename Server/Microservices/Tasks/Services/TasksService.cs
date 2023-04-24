@@ -9,40 +9,46 @@ namespace Tasks.Services;
 
 public class TasksService
 {
-    public IUnitOfWork _work;
-    public ITasksRepository _tasksRepository;
+    private readonly IUnitOfWork _work;
+    private readonly ITasksRepository _tasksRepository;
+    private readonly ITaskImplementationsRepository _tasksImplementationsRepository;
 
-    public TasksService(IUnitOfWork work, ITasksRepository tasksRepository)
+    public TasksService(
+        IUnitOfWork work,
+        ITasksRepository tasksRepository,
+        ITaskImplementationsRepository taskImplementationsRepository
+    )
     {
         _work = work;
         _tasksRepository = tasksRepository;
+        _tasksImplementationsRepository = taskImplementationsRepository;
     }
 
-    public async Task<IResult> GetTask(Guid id, AccessJwtTokenContent? jwt)
+    public async Task<IResult> GetTask(Guid id, UserClaims? userClaims)
     {
         var task = await _tasksRepository.GetById(id);
-        if (task?.IsVisible((PublicUser?)jwt) == true)
+        if (task?.IsVisible(userClaims) == true)
         {
             return Results.Ok(task);
         }
         return Results.NotFound(new ErrorDto("no task found", CommonErrors.NotFoundError));
     }
 
-    public async Task<IResult> GetTasksInfo(GetTasksInfoDto dto, AccessJwtTokenContent? jwt)
+    public async Task<IResult> GetTasksInfo(GetTasksInfoDto dto, UserClaims? userClaims)
         => Results.Ok(await _tasksRepository.GetTasksInfo(
             dto,
-            jwt != null && ((jwt.Roles & UserRoles.Admin) != UserRoles.None),
-            jwt?.UserId
+            userClaims != null && ((userClaims.Roles & UserRoles.Admin) != UserRoles.None),
+            userClaims?.UserId
         ));
 
-    public async Task<IResult> GetTasks(GetTasksDto dto, AccessJwtTokenContent? jwt)
+    public async Task<IResult> GetTasks(GetTasksDto dto, UserClaims? userClaims)
         => Results.Ok(await _tasksRepository.GetTasks(
             dto,
-            jwt != null && ((jwt.Roles & UserRoles.Admin) != UserRoles.None),
-            jwt?.UserId
+            userClaims != null && ((userClaims.Roles & UserRoles.Admin) != UserRoles.None),
+            userClaims?.UserId
         ));
 
-    public async Task<IResult> CreateTask(CreateTaskDto dto, AccessJwtTokenContent jwt)
+    public async Task<IResult> CreateTask(CreateTaskDto dto, UserClaims userClaims)
     {
         var existedTaskWithTitle = await _tasksRepository.GetByTitle(dto.Title);
 
@@ -56,7 +62,7 @@ public class TasksService
 
         var task = new Task_()
         {
-            AuthorId = jwt.UserId,
+            AuthorId = userClaims.UserId,
             Title = dto.Title,
             Description = dto.Description,
             Level = dto.SuggestedLevel ?? 9,
@@ -77,18 +83,16 @@ public class TasksService
         return Results.Ok(task);
     }
 
-    public async Task<IResult> UpdateTask(Guid id, UpdateTaskDto dto, AccessJwtTokenContent jwt)
+    public async Task<IResult> UpdateTask(Guid id, UpdateTaskDto dto, UserClaims userClaims)
     {
         var task = await _tasksRepository.GetById(id);
 
-        var user = ((PublicUser)jwt)!;
-
-        if (task?.IsVisible(user) != true)
+        if (task?.IsVisible(userClaims) != true)
         {
             return Results.NotFound(new ErrorDto("no task found", CommonErrors.NotFoundError));
         }
 
-        if (!task.CanUpdate(user))
+        if (!task.CanUpdate(userClaims))
         {
             return Results.Json(
                 new ErrorDto("no access to update this task", CommonErrors.ForbiddenError),
@@ -136,18 +140,16 @@ public class TasksService
         return Results.Ok(task);
     }
 
-    public async Task<IResult> DeleteTask(Guid id, AccessJwtTokenContent jwt)
+    public async Task<IResult> DeleteTask(Guid id, UserClaims userClaims)
     {
         var task = await _tasksRepository.GetById(id);
 
-        var user = ((PublicUser)jwt)!;
-
-        if (task?.IsVisible(user) != true)
+        if (task?.IsVisible(userClaims) != true)
         {
             return Results.NotFound(new ErrorDto("no task found", CommonErrors.NotFoundError));
         }
 
-        if (!task.CanDelete(user))
+        if (!task.CanDelete(userClaims))
         {
             return Results.Json(
                 new ErrorDto("no access to delete this task", CommonErrors.ForbiddenError),
@@ -161,18 +163,16 @@ public class TasksService
         return Results.Ok();
     }
 
-    public async Task<IResult> ApproveTask(Guid id, ApproveTaskDto dto, AccessJwtTokenContent jwt)
+    public async Task<IResult> ApproveTask(Guid id, ApproveTaskDto dto, UserClaims userClaims)
     {
         var task = await _tasksRepository.GetById(id);
 
-        var user = ((PublicUser)jwt)!;
-
-        if (task?.IsVisible(user) != true)
+        if (task?.IsVisible(userClaims) != true)
         {
             return Results.NotFound(new ErrorDto("no task found", CommonErrors.NotFoundError));
         }
 
-        if (!task.CanApprove(user))
+        if (!task.CanApprove(userClaims))
         {
             return Results.Json(
                 new ErrorDto("no access to approve this task", CommonErrors.ForbiddenError),
@@ -200,18 +200,16 @@ public class TasksService
         return Results.Ok(task);
     }
 
-    public async Task<IResult> PublishTask(Guid id, AccessJwtTokenContent jwt)
+    public async Task<IResult> PublishTask(Guid id, UserClaims userClaims)
     {
         var task = await _tasksRepository.GetById(id);
 
-        var user = ((PublicUser)jwt)!;
-
-        if (task?.IsVisible(user) != true)
+        if (task?.IsVisible(userClaims) != true)
         {
             return Results.NotFound(new ErrorDto("no task found", CommonErrors.NotFoundError));
         }
 
-        if (!task.CanPublish(user))
+        if (!task.CanPublish(userClaims))
         {
             return Results.Json(
                 new ErrorDto("no access to publish this task", CommonErrors.ForbiddenError),
@@ -233,5 +231,131 @@ public class TasksService
         await _work.Save();
 
         return Results.Ok(task);
+    }
+
+    public async Task<IResult> GetImplementation(
+        Guid taskId,
+        string language,
+        string version,
+        UserClaims userClaims
+    )
+    {
+        var task = await _tasksRepository.GetById(taskId);
+
+        if (task?.IsVisible(userClaims) != true)
+        {
+            return Results.NotFound(new ErrorDto("no task found", CommonErrors.NotFoundError));
+        }
+
+        if (!task.IsImplementationsVisible(userClaims))
+        {
+            return Results.Json(
+                new ErrorDto("no access to task implementations", CommonErrors.ForbiddenError),
+                statusCode: (int)HttpStatusCode.Forbidden
+            );
+        }
+
+        var implementation = await _tasksImplementationsRepository.Get(taskId, language, version);
+
+        if (implementation == null)
+        {
+            return Results.NotFound(new ErrorDto("no task implementation found", CommonErrors.NotFoundError));
+        }
+
+        return Results.Ok((TaskImplementationWithSecretDto)implementation);
+    }
+
+    public async Task<IResult> GetImplementations(Guid taskId, UserClaims userClaims)
+    {
+        var task = await _tasksRepository.GetById(taskId);
+
+        if (task?.IsVisible(userClaims) != true)
+        {
+            return Results.NotFound(new ErrorDto("no task found", CommonErrors.NotFoundError));
+        }
+
+        if (!task.IsImplementationsVisible(userClaims))
+        {
+            return Results.Json(
+                new ErrorDto("no access to task implementations", CommonErrors.ForbiddenError),
+                statusCode: (int)HttpStatusCode.Forbidden
+            );
+        }
+
+        var implementations = await _tasksImplementationsRepository.GetByTask(taskId);
+
+        return Results.Ok(implementations.Select(impl => (TaskImplementationWithSecretDto)impl));
+    }
+
+    public async Task<(TaskImplementationWithSecretDto? Implementation, ErrorDto? Error)> SaveTaskImplementation(SaveImplementationCodeDto dto, UserClaims userClaims)
+    {
+        var task = await _tasksRepository.GetById(dto.TaskId);
+
+        if (task?.IsVisible(userClaims) != true)
+        {
+            return (null, new ErrorDto("no task found", CommonErrors.NotFoundError));
+        }
+
+        if (!task.CanUpdate(userClaims))
+        {
+            return (null, new ErrorDto("no access to update this task", CommonErrors.ForbiddenError));
+        }
+
+        var implementation =
+            task
+                .Implementations
+                .FirstOrDefault(impl => impl.Language == dto.Language && impl.Version == dto.Version)
+            ?? new TaskImplementation()
+            {
+                TaskId = dto.TaskId,
+                Language = dto.Language,
+                Version = dto.Version
+            };
+
+        implementation.Details = dto.Details;
+        implementation.InitialSolution = dto.InitialSolution;
+        implementation.CompletedSolution = dto.CompletedSolution;
+        implementation.PreloadedCode = dto.PreloadedCode;
+        implementation.ExampleTests = dto.ExampleTests;
+        implementation.Tests = dto.Tests;
+
+        if (!task.Implementations.Contains(implementation))
+        {
+            task.Implementations.Add(implementation);
+        }
+
+        await _tasksRepository.Update(task);
+
+        await _work.Save();
+
+        return ((TaskImplementationWithSecretDto)implementation, null);
+    }
+
+    public async Task<IResult> DeleteImplementation(
+        Guid taskId,
+        string language,
+        string version,
+        UserClaims userClaims
+    )
+    {
+        var task = await _tasksRepository.GetById(taskId);
+
+        if (task?.IsVisible(userClaims) != true)
+        {
+            return Results.NotFound(new ErrorDto("no task found", CommonErrors.NotFoundError));
+        }
+
+        if (!task.IsImplementationsVisible(userClaims))
+        {
+            return Results.Json(
+                new ErrorDto("no access to task implementations", CommonErrors.ForbiddenError),
+                statusCode: (int)HttpStatusCode.Forbidden
+            );
+        }
+
+        await _tasksImplementationsRepository.Delete(taskId, language, version);
+        await _work.Save();
+
+        return Results.Ok();
     }
 }

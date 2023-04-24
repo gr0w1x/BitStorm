@@ -29,7 +29,10 @@ public class TasksRepository:
 
     private IQueryable<Task_> TasksSearchQuery(GetTasksInfoDto dto, bool viewAll, Guid? viewer)
     {
-        var query = Entities.Include(task => task.Tags).AsQueryable();
+        var query = Entities
+            .Include(task => task.Tags)
+            .Include(task => task.Implementations)
+            .AsQueryable();
 
         if (dto.Query != null)
         {
@@ -68,7 +71,6 @@ public class TasksRepository:
         if (dto.Languages != null)
         {
             query = query
-                .Include(task => task.Implementations)
                 .Where(
                     task => task.Implementations.Any(implementation => dto.Languages.Contains(implementation.Language))
                 );
@@ -138,6 +140,7 @@ public class TasksRepository:
     public override Task<Task_?> GetById(Guid id) =>
         Entities
             .Include(task => task.Tags)
+            .Include(task => task.Implementations)
             .FirstOrDefaultAsync(task => task.Id == id);
 
     public Task<Task_?> GetByTitle(string title) =>
