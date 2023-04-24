@@ -33,7 +33,7 @@ public class AuthController : ControllerBase
     [HttpPost("confirm")]
     [ValidationFilter]
     public Task<IResult> Confirm([FromBody] ConfirmDto body)
-        => _authService.Confirm(body.code);
+        => _authService.Confirm(body.Code);
 
     [AllowAnonymous]
     [HttpPost("refresh")]
