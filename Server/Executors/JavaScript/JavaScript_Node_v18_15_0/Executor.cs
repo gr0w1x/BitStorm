@@ -30,7 +30,10 @@ $@"
 {execute.Tests}
 ";
 
-    public static async Task<ExecuteCodeResultDto> ExecuteNodeCode(ExecuteCodeDto execute)
+    public static async Task<ExecuteCodeResultDto> ExecuteNodeCode(
+        ExecuteCodeDto execute,
+        ILogger<BaseExecutorService<Types.Languages.JavaScript_Node_v18_15_0>> ExecutorLogger
+    )
     {
         var folder = $"./node/tests/{Path.GetRandomFileName()}";
         ExecuteCodeResultDto? message;
@@ -96,8 +99,8 @@ $@"
         catch (Exception e)
         {
             watcher.Stop();
-            Console.WriteLine(e.Message);
-            Console.WriteLine(e.StackTrace);
+            ExecutorLogger.LogError(e.Message);
+            ExecutorLogger.LogError(e.StackTrace);
             message = new ExecuteCodeResultDto()
             {
                 Details = "Something happenning wrong",
@@ -113,5 +116,5 @@ $@"
     }
 
     protected override Task<ExecuteCodeResultDto> ExecuteCode(ExecuteCodeDto execute)
-        => ExecuteNodeCode(execute);
+        => ExecuteNodeCode(execute, ExecutorLogger);
 }

@@ -13,7 +13,7 @@ namespace ExecutorTemplate;
 
 public abstract class BaseExecutorService<T>: RabbitMqService<RabbitMqProvider>
 {
-    private readonly ILogger<BaseExecutorService<T>> _logger;
+    protected readonly ILogger<BaseExecutorService<T>> ExecutorLogger;
 
     protected BaseExecutorService(
         IConnectionFactory factory,
@@ -21,7 +21,7 @@ public abstract class BaseExecutorService<T>: RabbitMqService<RabbitMqProvider>
         RabbitMqProvider provider
     ) : base(factory, logger, provider)
     {
-        _logger = logger;
+        ExecutorLogger = logger;
     }
 
     protected override void OnModeling(IModel model)
