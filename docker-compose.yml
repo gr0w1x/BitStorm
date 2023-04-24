@@ -120,12 +120,14 @@ services:
       - '${TASKS_PORT}:80'
     environment:
       MYSQL_HOST: tasks-db
+      RABBITMQ_HOST: rabbitmq
     env_file:
       - .env
       - Server/Microservices/Tasks/.env
     networks:
       - tasks-db-network
       - gateway-network
+      - rabbitmq-network
   solutions:
     build:
       context: .
