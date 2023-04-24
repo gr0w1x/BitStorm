@@ -1,10 +1,14 @@
 using System.ComponentModel.DataAnnotations;
+using Types.Dtos;
 using Types.Entities;
 
 namespace CommonServer.Data.Messages;
 
-public record SaveImplementationCodeDtoWithUser: SaveImplementationCodeDto
+public record SaveImplementationCodeMessage: SaveImplementationCodeDto
 {
     [Required]
-    public Guid User { get; set; }
+    public SaveImplementationCodeDto Dto { get; set; }
+
+    [Required]
+    public UserClaims User { get; set; }
 }
