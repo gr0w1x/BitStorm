@@ -1,7 +1,9 @@
-using CommonServer.Asp.HostedServices;
+using CommonServer.Asp.UserIdProviders;
 using CommonServer.Utils.Extensions;
+using CommonServer.Utils.RabbitMq;
 using Executions.HostedServices;
 using Executions.Hubs;
+using Microsoft.AspNetCore.SignalR;
 using RabbitMQ.Client;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,13 +12,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
 // Builder services
-builder.Services.AddHostedService<SchedulerService>();
+builder.Services.AddScheduler();
 
 // Auth
 builder.Services.AddJwtAuth(builder.Configuration.GetJwtOptions());
+builder.Services.AddSingleton<IUserIdProvider, UserIdByIdProvider>();
 
 // RabbitMq
 builder.Services.AddSingleton<IConnectionFactory>(new ConnectionFactory().DefaultRabbitMqConnection());
+builder.Services.AddSingleton<MessageHandlers>();
 builder.Services.AddSingleton<ExecutionsRabbitMqProvider>();
 builder.Services.AddHostedService<ExecutionsRabbitMqService>();
 

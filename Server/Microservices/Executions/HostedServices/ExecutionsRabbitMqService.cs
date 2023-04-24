@@ -1,11 +1,8 @@
-using System.Text;
-using System.Text.Json;
 using CommonServer.Asp.HostedServices;
 using CommonServer.Utils.Extensions;
-using Executions.Hubs;
+using CommonServer.Utils.RabbitMq;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using Types.Dtos;
 
 namespace Executions.HostedServices;
 
@@ -16,15 +13,21 @@ public class ExecutionsRabbitMqProvider: RabbitMqProvider
 
 public class ExecutionsRabbitMqService : RabbitMqService<ExecutionsRabbitMqProvider>
 {
+    private readonly MessageHandlers _handlers;
+
     public ExecutionsRabbitMqService(
+        MessageHandlers handlers,
         IConnectionFactory factory,
         ILogger<RabbitMqService<ExecutionsRabbitMqProvider>> logger,
         ExecutionsRabbitMqProvider provider
-    ) : base(factory, logger, provider) { }
+    ) : base(factory, logger, provider)
+    {
+        _handlers = handlers;
+    }
 
     protected override void OnModeling(IModel model)
     {
-        Provider.ExecutorReceiveQueue = $"executions-{new Guid()}";
+        Provider.ExecutorReceiveQueue = $"executions-{Guid.NewGuid()}";
         model.ExecutorQueueDeclare(Provider.ExecutorReceiveQueue);
 
         var consumer = new AsyncEventingBasicConsumer(model);
@@ -36,14 +39,6 @@ public class ExecutionsRabbitMqService : RabbitMqService<ExecutionsRabbitMqProvi
 
     private async Task OnExecutorMessageReceive(object? _, BasicDeliverEventArgs e)
     {
-        var props = e.BasicProperties;
-        var message = Encoding.UTF8.GetString(e.Body.ToArray());
-
-        ExecuteCodeResultDto? executeResult = JsonSerializer.Deserialize<ExecuteCodeResultDto>(message);
-
-        if (executeResult != null && ExecutionsHub.ConnectionExecution.Remove(props.CorrelationId, out CodeExecutionResultHandler? handler))
-        {
-            await handler.Handle(executeResult);
-        }
+        await _handlers.HandleMessage(e);
     }
 }
