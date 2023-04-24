@@ -25,10 +25,29 @@ public class CallbackJob: ISchedulerJob
     public Task Run() => _action();
 }
 
+public class SchedulerController
+{
+    private SchedulerService? _scheduler;
+
+    internal void Bind(SchedulerService? scheduler)
+    {
+        _scheduler = scheduler;
+    }
+
+    public void AddJob(ISchedulerJob job)
+    {
+        if (_scheduler == null)
+        {
+            throw new NullReferenceException();
+        }
+        _scheduler.AddJob(job);
+    }
+}
+
 public class SchedulerService : BackgroundService
 {
     private readonly PriorityQueue<ISchedulerJob, DateTime> _queue = new();
-    private readonly CancellationTokenSource _cancellationTokenSource = new();
+    private CancellationTokenSource _cancellationTokenSource = new();
     private readonly object _lock = new();
     private readonly ILogger<SchedulerController> _logger;
     private readonly SchedulerController _controller;
@@ -38,37 +57,6 @@ public class SchedulerService : BackgroundService
         _logger = logger;
         _controller = controller;
         _controller.Bind(this);
-    }
-
-    public class SchedulerController
-    {
-        private SchedulerService? _scheduler;
-
-        internal void Bind(SchedulerService? scheduler)
-        {
-            _scheduler = scheduler;
-        }
-
-        public void AddJob(ISchedulerJob job)
-        {
-            if (_scheduler == null)
-            {
-                throw new NullReferenceException();
-            }
-            lock (_scheduler._lock)
-            {
-                _scheduler._queue.Enqueue(job, job.WhenRun);
-                if (_scheduler._queue.Count == 0 || job.WhenRun < _scheduler._queue.Peek().WhenRun)
-                {
-                    _scheduler._cancellationTokenSource.Cancel();
-                }
-            }
-        }
-
-        public void AddJob(object value)
-        {
-            throw new NotImplementedException();
-        }
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -117,7 +105,11 @@ public class SchedulerService : BackgroundService
                 }
                 else
                 {
-                    await Task.FromCanceled(_cancellationTokenSource.Token);
+                    try
+                    {
+                        await Task.Delay(-1, _cancellationTokenSource.Token);
+                    }
+                    catch (TaskCanceledException) { }
                 }
             }
             while (!stoppingToken.IsCancellationRequested);
@@ -125,6 +117,19 @@ public class SchedulerService : BackgroundService
         finally
         {
             _controller.Bind(null);
+        }
+    }
+
+    public void AddJob(ISchedulerJob job)
+    {
+        lock (_lock)
+        {
+            _queue.Enqueue(job, job.WhenRun);
+            if (_queue.Count == 1 || job.WhenRun < _queue.Peek().WhenRun)
+            {
+                _cancellationTokenSource.Cancel();
+                _cancellationTokenSource = new CancellationTokenSource();
+            }
         }
     }
 }
