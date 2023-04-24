@@ -32,4 +32,11 @@ public static class ImplementationsPageReducers
         {
             Connected = action.Connected
         };
+
+    [ReducerMethod]
+    public static ImplementationsPageState SetTask(ImplementationsPageState state, SetTaskAction action) =>
+        state with
+        {
+            Task = action.Task
+        };
 }

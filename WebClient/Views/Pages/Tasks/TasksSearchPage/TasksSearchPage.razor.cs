@@ -53,7 +53,7 @@ public partial class TasksSearchPage
         {
             try
             {
-                var dto = JsonSerializer.Deserialize<GetTasksDto>(HttpUtility.HtmlDecode(Query!))!;
+                var dto = JsonSerializer.Deserialize<GetTasksDto>(HttpUtility.HtmlDecode(Query))!;
                 GetTasksInfo = dto;
                 if (dto.Sort != null)
                 {

@@ -65,6 +65,7 @@ body,
     --text: #9CAEF0;
     --control: #7d90d3;
     --surface: #12354b;
+    --highlight: #152536;
 
     --info-text: #9CAEF0;
     --info-control: #7d90d3;
@@ -90,6 +91,7 @@ body,
     --text: #333;
     --control: #555;
     --surface: #ccc;
+    --highlight: #a8a8a8;
 
     --info-text: #273f96;
     --info-control: #172a6e;

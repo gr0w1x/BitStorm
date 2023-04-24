@@ -2,71 +2,88 @@
 @using WebClient.Models
 @using WebClient.Constants
 @using WebClient.Views.Components.Rank
+@using WebClient.Views.Components.LangugeIcons
 @using WebClient.Extensions
 
 @inject Navigation Navigation
 
 <div class="task-card">
-    <h3 class="title">
-        <span class="caption">
-            <Rank Value="@Model.Task.Level" />
-        </span>
-        @if (HasLink) {
-            <a @onclick="@(() => Navigation.NavigateTo(Routes.TaskPage(@Model.Task.Id)))">
-                @Model.Task.Title
-            </a>
-        } else {
-            @Model.Task.Title
-        }
-    </h3>
-    <div class="labels">
-        <span class="label">
-            <i class="fa-regular fa-star" />
-            @Model.Task.Likes
-        </span>
-        <span class="label">
-            <i class="fa-solid fa-user"></i>
-            By
-            @if(_loaded)
-            {
-                @if (Model.Author == null)
-                {
-                    <span>???</span>
-                }
-                else
-                {
-                    <a @onclick="@(() => Navigation.NavigateTo(Routes.UserPage(Model.Author.Id)))">
-                        @Model.Author.Username
-                    </a>
-                }
-            }
-        </span>
-        @if (@Model.Task.Beta)
-        {
-            <span class="label">
-                <i class="fa-solid fa-flask" />
-                Beta
+    <div class="task-main">
+        <h3 class="title">
+            <span class="caption">
+                <Rank Value="@Model.Task.Level" />
             </span>
-        }
-        <span class="label">
-            <i class="fa-regular fa-calendar"></i>
-            Created: @Model.Task.CreatedAt.DefaultFormat()
-        </span>
-        @if (@Model.Task.UpdatedAt != null)
-        {
+            @if (HasLink) {
+                <a @onclick="@(() => Navigation.NavigateTo(Routes.TaskPage(@Model.Task.Id)))">
+                    @Model.Task.Title
+                </a>
+            } else {
+                @Model.Task.Title
+            }
+        </h3>
+        <div class="labels">
+            <span class="label">
+                <i class="fa-regular fa-star" />
+                @Model.Task.Likes
+            </span>
+            <span class="label">
+                <i class="fa-solid fa-user"></i>
+                By
+                @if(_loaded)
+                {
+                    @if (Model.Author == null)
+                    {
+                        <span>???</span>
+                    }
+                    else
+                    {
+                        <a @onclick="@(() => Navigation.NavigateTo(Routes.UserPage(Model.Author.Id)))">
+                            @Model.Author.Username
+                        </a>
+                    }
+                }
+            </span>
+            @if (@Model.Task.Beta)
+            {
+                <span class="label">
+                    <i class="fa-solid fa-flask" />
+                    Beta
+                </span>
+            }
             <span class="label">
                 <i class="fa-regular fa-calendar"></i>
-                Updated: @Model.Task.UpdatedAt.Value.DefaultFormat()
+                Created: @Model.Task.CreatedAt.DefaultFormat()
             </span>
+            @if (@Model.Task.UpdatedAt != null)
+            {
+                <span class="label">
+                    <i class="fa-regular fa-calendar"></i>
+                    Updated: @Model.Task.UpdatedAt.Value.DefaultFormat()
+                </span>
+            }
+        </div>
+        @if (Model.Task.Tags.Any())
+        {
+            <div class="tags caption">
+                <i class="fa-solid fa-tag"></i>
+                @foreach (var tag in Model.Task.Tags)
+                {
+                    <span class="tag">@tag.Id</span>
+                }
+            </div>
         }
     </div>
-    @if (Model.Task.Tags.Any())
+    @if (Model.Task.Implementations.Any())
     {
-        <div class="tags caption">
-            <i class="fa-solid fa-tag"></i>
-            @foreach (var tag in Model.Task.Tags)
-            {
-                <span class="tag">@tag.Id</span>
+        <div class="task-languages">
+            @{
+                var languages = Model.Task.Implementations.Select(impl => impl.Language).ToHashSet();
+                @foreach (var language in languages)
+                {
+                    <div class="language">
+                        <LanguageIcon Size="@(25)" Language="@language" />
+                    </div>
+                }
             }
         </div>
     }

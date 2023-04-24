@@ -1,4 +1,5 @@
 @using WebClient.Views.Components.SelectInput
+@using WebClient.Views.Components.LangugeIcons
 
 <div class="language-select">
     <SelectInput
@@ -10,7 +11,7 @@
         <RenderItem Context="language">
             @if (language.Item != null)
             {
-                @LanguagesDictionary[@language.Item].Name
+                <LanguageIcon Language="@LanguagesDictionary[@language.Item].Name" Size="@(15)" /> @LanguagesDictionary[@language.Item].Name
             }
             else
             {

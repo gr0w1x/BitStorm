@@ -1,3 +1,4 @@
+using Blazorise;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using Types.Dtos;
@@ -14,101 +15,140 @@ using WebClient.Views.Components;
 
 namespace WebClient.Views.Pages.Tasks.ImplementationsPage;
 
-public record ImplementationDto
-{
-    public string Details { get; set; } = "";
-    public string TestCases { get; set; } = "";
-    public string ExampleTestCases { get; set; } = "";
-    public string CompletedSolution { get; set; } = "";
-    public string InitialSolution { get; set; } = "";
-    public string Preloaded { get; set; } = "";
-}
-
-public partial class ImplementationsPage: PageComponent<ImplementationsPageState>, IDisposable
+public partial class ImplementationsPage: ReduxComponent<ImplementationsPageState>
 {
     [Parameter]
-    public string TaskId { get; set; }
+    public List<TaskImplementation> ExistedImplementations { get; set; }
 
-    public string DetailsTab { get; set; } = "details";
-    public string SolutionsTab { get; set; } = "completed";
+    [Inject]
+    protected ApiClient Client { get; set; }
+    [Inject]
+    protected TasksService TasksService { get; set; }
+    [Inject]
+    protected TaskImplementationsService TaskImplementationsService { get; set; }
 
-    private IDictionary<SelectedLanguageVersion, ImplementationDto> Implementations =
-        new Dictionary<SelectedLanguageVersion, ImplementationDto>();
-
-    public SelectedLanguageVersion LanguageVersion { get; set; }
-    public ImplementationDto CurrentImplementation => Implementations![LanguageVersion!];
-
-    public Task OnLanguageVersionChanged(SelectedLanguageVersion languageVersion)
+    protected IDictionary<SelectedLanguageVersion, SaveImplementationCodeDto> Implementations =
+        new Dictionary<SelectedLanguageVersion, SaveImplementationCodeDto>();
+    protected SelectedLanguageVersion LanguageVersion { get; set; }
+    protected Task OnLanguageVersionChanged(SelectedLanguageVersion languageVersion)
     {
         if (!Implementations!.ContainsKey(languageVersion))
         {
-            Implementations[languageVersion] = new ImplementationDto();
+            var existed = ExistedImplementations.Find(
+                impl =>
+                    impl.Language == languageVersion.Language &&
+                    impl.Version == languageVersion.Version
+            );
+            if (existed != null)
+            {
+                Implementations[languageVersion] =
+                    new SaveImplementationCodeDto()
+                    {
+                        TaskId = existed.TaskId,
+                        Language = existed.Language,
+                        Version = existed.Version,
+                        Details = existed.Details,
+                        InitialSolution = existed.InitialSolution,
+                        CompletedSolution = existed.CompletedSolution,
+                        PreloadedCode = existed.PreloadedCode,
+                        ExampleTests = existed.ExampleTests,
+                        Tests = existed.Tests
+                    };
+            }
+            else
+            {
+                Implementations[languageVersion] =
+                    new SaveImplementationCodeDto()
+                    {
+                        TaskId = ComponentState.Value.Task!.Id,
+                        Language = languageVersion.Language,
+                        Version = languageVersion.Version
+                    };
+            }
         }
         LanguageVersion = languageVersion;
         return Task.CompletedTask;
     }
+    protected SaveImplementationCodeDto CurrentImplementation => Implementations![LanguageVersion!];
 
-    private readonly CancellationTokenSource tokenSource = new ();
+    protected readonly CancellationTokenSource tokenSource = new ();
     protected HubConnection? Connection;
 
-    [Inject]
-    private ApiClient Client { get; set; }
+    protected string DetailsTab { get; set; } = "details";
+    protected string SolutionsTab { get; set; } = "completed";
+    protected bool Submitable =>
+        !ComponentState.Value.UxState.Is(UxState.Loading) && ComponentState.Value.Connected;
+    protected Modal deleteModalRef;
 
     protected override async Task OnInitializedAsync()
     {
-        var first = CodeLanguages.Languages[0];
-        LanguageVersion = new SelectedLanguageVersion()
-        {
-            Language = first.Code,
-            Version = first.DefaultVersion.Version,
-        };
-        Implementations[LanguageVersion] = new ImplementationDto();
+        var languageVersion = ExistedImplementations.Any()
+            ?
+                new SelectedLanguageVersion()
+                {
+                    Language = ExistedImplementations[0].Language,
+                    Version = ExistedImplementations[0].Version
+                }
+            :
+                new SelectedLanguageVersion()
+                {
+                    Language = CodeLanguages.Languages[0].Code,
+                    Version = CodeLanguages.Languages[0].DefaultVersion.Version
+                };
+        await OnLanguageVersionChanged(languageVersion);
+
         base.OnInitialized();
 
-        if (Client.UserState.Value.Authorized)
-        {
-            Connection = new HubConnectionBuilder()
-                .WithAutomaticReconnect()
-                .WithUrl(new Uri(Client.BaseAddress!, "/api/executions/hub"), options => {
-                    options.AccessTokenProvider =
-                        () => Task.FromResult(Client.UserState.Value.Tokens?.Access.Token);
-                })
-                .Build();
+        Connection = new HubConnectionBuilder()
+            .WithAutomaticReconnect()
+            .WithUrl(new Uri(Client.BaseAddress!, "/api/executions/hub"), options => {
+                options.AccessTokenProvider =
+                    async () => {
+                        if (!Client.UserState.Value.HasAccess)
+                        {
+                            await Client.TryRefresh();
+                        }
+                        return Client.UserState.Value.Tokens?.Access.Token;
+                    };
+            })
+            .Build();
 
-            Connection.Closed += OnConnectionClosed;
+        Connection.Closed += Connect;
 
-            Connection.On<ExecuteCodeResultDto>(nameof(IExecutionsHubClient.OnImplementationCodeSaved),
-                results =>
-                {
-                    Dispatcher.Dispatch(new SetOutputAction(results));
-                    Dispatcher.Dispatch(new SetUxState<ImplementationsPageState>(results.ExitStatus == 0 ? UxState.Success : UxState.Error));
-                }
-            );
-            Connection.On<ErrorDto>(nameof(IExecutionsHubClient.OnError),
-                async error => await NotificationService.Error(error.Message, SnackbarConstants.DefaultErrorHeader)
-            );
+        Connection.On<ExecuteCodeResultDto>(nameof(IExecutionsHubClient.OnCodeExecuted), OnCodeExecuted);
+        Connection.On<ErrorDto>(nameof(IExecutionsHubClient.OnError), OnError);
+        Connection.On<TaskImplementationWithSecretDto>(nameof(IExecutionsHubClient.OnImplementationSaved), OnImplementationSaved);
 
-            await OnConnectionClosed(null);
-        }
+        await Connect(null);
     }
 
-    protected async Task OnConnectionClosed(Exception? _e)
+    protected async Task Connect(Exception? _e)
     {
         Dispatcher.Dispatch(new SetConnected(false));
 
-        if (!Client.UserState.Value.HasAccess)
-        {
-            await Client.TryRefresh();
-        }
-
-        if (await Connection.StartWithRetry(tokenSource.Token))
+        if (await Connection!.StartWithRetry(tokenSource.Token))
         {
             Dispatcher.Dispatch(new SetConnected(true));
         }
     }
 
-    protected bool Submitable =>
-        !ComponentState.Value.UxState.Is(UxState.Loading) && ComponentState.Value.Connected;
+    protected Task OnCodeExecuted(ExecuteCodeResultDto results)
+    {
+        Dispatcher.Dispatch(new SetOutputAction(results));
+        return Task.CompletedTask;
+    }
+
+    protected async Task OnImplementationSaved(TaskImplementationWithSecretDto _)
+    {
+        await NotificationService.Success("implementation successfully changes");
+        Dispatcher.Dispatch(new SetUxState<ImplementationsPageState>(UxState.Success));
+    }
+
+    protected async Task OnError(ErrorDto error)
+    {
+        await NotificationService.Error(error.Message, SnackbarConstants.DefaultErrorHeader);
+        Dispatcher.Dispatch(new SetUxState<ImplementationsPageState>(UxState.Error));
+    }
 
     protected async Task OnSave()
     {
@@ -116,26 +156,48 @@ public partial class ImplementationsPage: PageComponent<ImplementationsPageState
         Dispatcher.Dispatch(new SetOutputAction(null));
         Dispatcher.Dispatch(new SetUxState<ImplementationsPageState>(UxState.Loading));
 
-        await Connection.SendAsync(nameof(IExecutionsHubServer.SaveImplementationCode), new SaveImplementationCodeDto()
+        await Connection!.SendAsync(
+            nameof(IExecutionsHubServer.SaveImplementationCode),
+            CurrentImplementation with
+            {
+                Details = string.IsNullOrWhiteSpace(CurrentImplementation.Details)
+                    ? null
+                    : CurrentImplementation.Details,
+                PreloadedCode = string.IsNullOrWhiteSpace(CurrentImplementation.PreloadedCode)
+                    ? null
+                    : CurrentImplementation.PreloadedCode,
+            }
+        );
+    }
+
+    protected async Task OnDelete()
+    {
+        Dispatcher.Dispatch(new SetUxState<ImplementationsPageState>(UxState.Loading));
+        await deleteModalRef.Hide();
+        try
         {
-            TaskId = new Guid(TaskId),
-            Language = LanguageVersion.Language,
-            Version = LanguageVersion.Version,
-            InitialSolution = CurrentImplementation.InitialSolution,
-            CompletedSolution = CurrentImplementation.CompletedSolution,
-            Preloaded = CurrentImplementation.Preloaded,
-            ExampleTestCases = CurrentImplementation.ExampleTestCases,
-            TestCases = CurrentImplementation.TestCases
-        });
+            await TaskImplementationsService.Delete(new TaskImplementationId(
+                ComponentState.Value.Task!.Id,
+                LanguageVersion.Language,
+                LanguageVersion.Version
+            ));
+            await NotificationService.Success("Deleted!");
+            Dispatcher.Dispatch(new SetUxState<ImplementationsPageState>(UxState.Success));
+        }
+        catch (Exception e)
+        {
+            await NotificationService.Error(e.Message, SnackbarConstants.DefaultErrorHeader);
+            Dispatcher.Dispatch(new SetUxState<ImplementationsPageState>(UxState.Error));
+        }
     }
 
     public override void Dispose()
     {
         if (Connection != null)
         {
-            Connection.Closed -= OnConnectionClosed;
+            Connection.Closed -= Connect;
+            Connection.Remove(nameof(IExecutionsHubClient.OnCodeExecuted));
             Connection.StopAsync(tokenSource.Token);
-            Connection.Remove(nameof(IExecutionsHubClient.OnImplementationCodeSaved));
         }
         GC.SuppressFinalize(this);
         base.Dispose();

@@ -1,10 +1,36 @@
 .task-card {
+    padding: 15px;
+    border-radius: 5px;
+    background-color: var(--surface);
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-flow: column;
+}
+
+.task-card:has(.task-languages) {
+    grid-template-columns: 3fr 1fr;
+}
+
+.task-main {
     display: flex;
     flex-direction: column;
     gap: 10px;
     padding: 15px;
     border-radius: 5px;
     background-color: var(--surface);
+}
+
+.task-languages {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.title {
+    text-overflow: ellipsis;
 }
 
 .title,
@@ -23,6 +49,12 @@
 
 .tag {
     padding: 2px 5px;
-    background: var(--background-alt);
+    background: var(--highlight);
     border-radius: 5px;
+}
+
+.language {
+    padding: 5px;
+    border-radius: 5px;
+    background-color: var(--highlight);
 }

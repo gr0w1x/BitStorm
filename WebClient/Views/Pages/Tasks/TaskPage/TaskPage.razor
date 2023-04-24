@@ -27,7 +27,7 @@
             <WebClient.Views.Components.Button.Button disabled="@(!Editable)">
                 SOLVE
             </WebClient.Views.Components.Button.Button>
-            @if(ComponentState.Value.TaskModel.Task.Visibility != TaskVisibility.Public && ComponentState.Value.TaskModel.Task.CanPublish(UserState.Value.User))
+            @if(ComponentState.Value.TaskModel.Task.Visibility != TaskVisibility.Public && ComponentState.Value.TaskModel.Task.CanPublish(((UserClaims)UserState.Value.User)!))
             {
                 <WebClient.Views.Components.Button.Button
                     disabled="@(!Editable)"
@@ -50,7 +50,7 @@
                     </ModalContent>
                 </Modal>
             }
-            @if (ComponentState.Value.TaskModel.Task.Beta && ComponentState.Value.TaskModel.Task.CanApprove(UserState.Value.User))
+            @if (ComponentState.Value.TaskModel.Task.Beta && ComponentState.Value.TaskModel.Task.CanApprove(((UserClaims)UserState.Value.User)!))
             {
                 <WebClient.Views.Components.Button.Button
                     disabled="@(!Editable)"
@@ -62,7 +62,7 @@
                     Dto="@ApproveDto"
                     OnSubmit="@(() => ApproveTask())" />
             }
-            @if(ComponentState.Value.TaskModel.Task.CanUpdate(UserState.Value.User))
+            @if(ComponentState.Value.TaskModel.Task.CanUpdate(((UserClaims)UserState.Value.User)!))
             {
                 <WebClient.Views.Components.Button.Button
                     disabled="@(!Editable)"
@@ -75,7 +75,7 @@
                     IMPLEMENTS
                 </WebClient.Views.Components.Button.Button>
             }
-            @if(ComponentState.Value.TaskModel.Task.CanDelete(UserState.Value.User))
+            @if(ComponentState.Value.TaskModel.Task.CanDelete(((UserClaims)UserState.Value.User)!))
             {
                 <WebClient.Views.Components.Button.Button
                     disabled="@(!Editable)"

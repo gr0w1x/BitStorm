@@ -1,0 +1,43 @@
+@page "/tasks/{taskId}/implementations"
+
+@using WebClient.Store.Pages.ImplementationsPage
+@using WebClient.Views.Components.CircleSpinner
+@using WebClient.Views.Components.Status
+@using WebClient.Views.Components
+
+@inherits PageComponent<ImplementationsPageState>
+
+@if (ComponentState.Value.Task != null)
+{
+    <ImplementationsPage
+        ExistedImplementations="@Implementations" />
+}
+else
+{
+    switch (ComponentState.Value.UxState)
+    {
+        case UxState.Success:
+        {
+            <div class="center-grid">
+                <ResultStatus Icon="fa-solid fa-5x fa-circle-question" Title="No task found" />
+            </div>
+            break;
+        }
+        case UxState.Error:
+        {
+            <div class="center-grid">
+                <OoopsStatus>
+                    @ComponentState.Value.ServerError                
+                </OoopsStatus>
+            </div>
+            break;
+        }
+        case UxState.Loading:
+        {
+            <div class="center-grid">
+                <CircleSpinner />
+            </div>
+            break;
+        }
+    }
+}

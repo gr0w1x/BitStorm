@@ -1,5 +1,3 @@
-@page "/tasks/{taskId}/implementations"
-
 @using Blazorise
 @using Types.Languages
 @using WebClient.Store.Pages.ImplementationsPage
@@ -10,7 +8,13 @@
 @using WebClient.Views.Components.MarkdownEditor
 @using WebClient.Views.Components.CircleSpinner
 
-@inherits PageComponent<ImplementationsPageState>
+@inherits ReduxComponent<ImplementationsPageState>
+
+@inject INotificationService NotificationService
+
+<PageTitle>
+    Bitstorm - Edit Implementations
+</PageTitle>
 
 @inject INotificationService NotificationService
 
@@ -50,13 +54,13 @@
                         <CodeEditor
                             Id="tests"
                             Language="@(LanguageVersion!.Language)"
-                            @bind-Value="CurrentImplementation.TestCases" />
+                            @bind-Value="CurrentImplementation.Tests" />
                     </TabPanel>
                     <TabPanel Name="example-test">
                         <CodeEditor
                             Id="example-tests"
                             Language="@(LanguageVersion!.Language)"
-                            @bind-Value="CurrentImplementation.ExampleTestCases" />
+                            @bind-Value="CurrentImplementation.ExampleTests" />
                     </TabPanel>
                     <TabPanel Name="output" class="output">
                         @if (ComponentState.Value.Output != null)
@@ -138,19 +142,37 @@
                         <CodeEditor
                             Id="preloaded"
                             Language="@(LanguageVersion!.Language)"
-                            @bind-Value="CurrentImplementation.Preloaded" />
+                            @bind-Value="CurrentImplementation.PreloadedCode" />
                     </TabPanel>
                 </Content>
             </Tabs>
         </div>
 
         <div class="buttons">
-            <WebClient.Views.Components.Button.Button disabled="@(!Submitable)">
+            <WebClient.Views.Components.Button.Button
+                disabled="@(!Submitable)"
+                @onclick="@(() => deleteModalRef.Show())">
                 DELETE
             </WebClient.Views.Components.Button.Button>
             <WebClient.Views.Components.Button.Button disabled="@(!Submitable)" class="filled" onclick="@OnSave">
                 SAVE
             </WebClient.Views.Components.Button.Button>
         </div>
+
+        <Modal @ref="deleteModalRef">
+            <ModalContent Centered>
+                <ModalBody>
+                    Are you sure to delete this task implementation? It's impossible to undo
+                </ModalBody>
+                <ModalFooter>
+                    <WebClient.Views.Components.Button.Button @onclick="@(() => deleteModalRef.Hide())">
+                        CANCEL
+                    </WebClient.Views.Components.Button.Button>
+                    <WebClient.Views.Components.Button.Button @onclick="@OnDelete">
+                        OK
+                    </WebClient.Views.Components.Button.Button>
+                </ModalFooter>
+            </ModalContent>
+        </Modal>
     </div>
 </div>

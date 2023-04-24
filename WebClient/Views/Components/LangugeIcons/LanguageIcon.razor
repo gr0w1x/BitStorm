@@ -1,0 +1,22 @@
+@using Types.Constants;
+
+@switch(Language)
+{
+    case LanguageCodes.Python:
+    {
+        <Python Size="@Size" />
+        break;
+    }
+    case LanguageCodes.JavaScript:
+    {
+        <JavaScript Size="@Size" />
+        break;
+    }
+}
+
+@code {
+    [Parameter]
+    public string Language { get; set; }
+    [Parameter]
+    public int Size { get; set; }
+}

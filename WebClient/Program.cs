@@ -55,6 +55,7 @@ builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddScoped<UsersService>();
 builder.Services.AddScoped<TasksService>();
+builder.Services.AddScoped<TaskImplementationsService>();
 
 var app = builder.Build();
 
