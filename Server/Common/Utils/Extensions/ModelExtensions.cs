@@ -14,6 +14,16 @@ public static class ModelExtensions
         );
     }
 
+    public static QueueDeclareOk TasksQueueDeclare(this IModel model, string name)
+    {
+        return model.QueueDeclare(
+            queue: name,
+            durable: false,
+            exclusive: false,
+            autoDelete: false
+        );
+    }
+
     public static QueueDeclareOk ExecutorQueueDeclare(this IModel model, string name, bool forExecutor = false)
     {
         var declare = model.QueueDeclare(

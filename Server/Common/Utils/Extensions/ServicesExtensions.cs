@@ -1,4 +1,3 @@
-using CommonServer.Asp.AuthorizationHandlers;
 using CommonServer.Asp.HostedServices;
 using CommonServer.Data.Types;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -20,7 +19,7 @@ public static class ServicesExtensions
 
     public static IServiceCollection AddScheduler(this IServiceCollection collection)
     {
-        collection.AddSingleton<SchedulerService.SchedulerController>();
+        collection.AddSingleton<SchedulerController>();
         collection.AddHostedService<SchedulerService>();
         return collection;
     }
@@ -34,17 +33,33 @@ public static class ServicesExtensions
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = jwtOptions.Key,
                 ValidateIssuer = true,
                 ValidateAudience = true,
+                IssuerSigningKey = jwtOptions.Key,
                 ValidIssuer = jwtOptions.Issuer,
                 ValidAudience = jwtOptions.Audience,
                 ClockSkew = TimeSpan.Zero
             };
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    var accessToken = context.Request.Query["access_token"];
+                    if (!string.IsNullOrEmpty(accessToken))
+                    {
+                        context.Token = accessToken;
+                    }
+                    return Task.CompletedTask;
+                }
+            };
         };
         services
-            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddScheme<JwtBearerOptions, JwtBearerAdsToContextHandler>(
+            .AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddScheme<JwtBearerOptions, JwtBearerHandler>(
                 JwtBearerDefaults.AuthenticationScheme,
                 builder
             );
