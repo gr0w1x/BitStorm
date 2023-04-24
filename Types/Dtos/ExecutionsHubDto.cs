@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Types.Entities;
+namespace Types.Dtos;
 
 public record SaveImplementationCodeDto
 {
@@ -11,15 +11,16 @@ public record SaveImplementationCodeDto
     [Required]
     public string Version { get; set; }
 
+    public string? Details { get; set; }
     [Required]
     public string InitialSolution { get; set; }
     [Required]
     public string CompletedSolution { get; set; }
-    public string? Preloaded { get; set; }
+    public string? PreloadedCode { get; set; }
     [Required]
-    public string ExampleTestCases { get; set; }
+    public string ExampleTests { get; set; }
     [Required]
-    public string TestCases { get; set; }
+    public string Tests { get; set; }
 }
 
 public record SolveTaskDto

@@ -6,7 +6,7 @@ namespace Types.Hubs;
 public interface IExecutionsHubClient: ICommonHubClient
 {
     public Task OnCodeExecuted(ExecuteCodeResultDto code);
-    public Task OnImplementationCodeSaved(ExecuteCodeResultDto code);
+    public Task OnImplementationSaved(TaskImplementationWithSecretDto implementation);
     public Task OnTaskSolved(ExecuteCodeResultDto code);
 }
 

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using Types.Dtos;
 
 namespace Types.Entities;
 
@@ -82,27 +83,30 @@ public record Task_: ITask, ICreated, IUpdated
 
     public ICollection<TaskImplementation> Implementations { get; set; }
 
-    public bool IsVisible(IUser? user) =>
+    public bool IsVisible(UserClaims? user) =>
         Visibility == TaskVisibility.Public ||
         (
             Visibility == TaskVisibility.Private && user != null && (
-                (AuthorId == user.Id) ||
+                (AuthorId == user.UserId) ||
                 ((user.Roles & UserRoles.Admin) != UserRoles.None)
             )
         );
 
-    public bool CanUpdate(IUser user) =>
-        AuthorId == user.Id;
-
-    public bool CanDelete(IUser user) =>
-        CanUpdate(user) || ((user.Roles & UserRoles.Admin) != UserRoles.None);
-
-    public bool CanPublish(IUser user) =>
+    public bool IsImplementationsVisible(UserClaims user) =>
         CanUpdate(user);
 
-    public bool CanApprove(IUser user) =>
+    public bool CanUpdate(UserClaims user) =>
+        AuthorId == user.UserId;
+
+    public bool CanDelete(UserClaims user) =>
+        CanUpdate(user) || ((user.Roles & UserRoles.Admin) != UserRoles.None);
+
+    public bool CanPublish(UserClaims user) =>
+        CanUpdate(user);
+
+    public bool CanApprove(UserClaims user) =>
         (user.Roles & (UserRoles.Admin | UserRoles.Moderator)) != UserRoles.None &&
-        AuthorId != user.Id;
+        AuthorId != user.UserId;
 }
 
 public record TaskTag: ITaskTag

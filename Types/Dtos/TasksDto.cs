@@ -81,3 +81,20 @@ public record ApproveTaskDto
     [Range(1, TaskConstants.MaxLevel, ErrorMessage = "possible task difficulty level values: 1-9")]
     public int? Level { get; set; }
 }
+
+public record TaskImplementationWithSecretDto
+{
+    public TaskImplementation TaskImplementation { get; set; }
+    public virtual string CompletedSolution { get; set; }
+    public virtual string? PreloadedCode { get; set; }
+    public virtual string Tests { get; set; }
+
+    public static explicit operator TaskImplementationWithSecretDto(TaskImplementation impl) =>
+        new ()
+        {
+            TaskImplementation = impl,
+            CompletedSolution = impl.CompletedSolution,
+            PreloadedCode = impl.PreloadedCode,
+            Tests = impl.Tests
+        };
+}

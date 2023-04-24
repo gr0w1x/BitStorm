@@ -30,4 +30,4 @@ public record SignUpDto()
     public string Password { get; set; }
 }
 
-public record ConfirmDto(Guid code);
+public record ConfirmDto(Guid Code);

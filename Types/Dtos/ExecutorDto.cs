@@ -14,4 +14,6 @@ public record ExecuteCodeResultDto
     public TimeSpan Time { get; init; }
     public string? Details { get; init; }
     public ExecuteTests? Tests { get; init; }
+
+    public bool IsSuccessful() => ExitStatus == 0 && Tests?.Failed == 0;
 }
